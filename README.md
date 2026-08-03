@@ -6,6 +6,14 @@ HAVEN is a full-stack MERN Real Estate Portal designed to help users discover, e
 
 ---
 
+# Live Demo
+
+Frontend:
+https://real-estate-portal-alpha-tan.vercel.app
+
+Backend API:
+https://real-estate-portal-cb7w.onrender.com
+
 ## ✨ Features
 
 ### 👤 Authentication
