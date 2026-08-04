@@ -1,60 +1,38 @@
 const asyncHandler = require("express-async-handler");
-
 const User = require("../models/User");
 const Property = require("../models/Property");
 
-// Add Favorite
 const addFavorite = asyncHandler(async (req, res) => {
-  const property = await Property.findById(req.params.propertyId);
-
-  if (!property) {
+  const propertyExists = await Property.exists({ _id: req.params.propertyId });
+  if (!propertyExists) {
     res.status(404);
     throw new Error("Property not found");
   }
 
-  if (req.user.favorites.includes(property._id)) {
+  // Atomic update prevents duplicate favorites when requests arrive concurrently.
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id, favorites: { $ne: req.params.propertyId } },
+    { $addToSet: { favorites: req.params.propertyId } },
+    { new: true, projection: { favorites: 1 } }
+  ).lean();
+  if (!user) {
     res.status(400);
     throw new Error("Property already in favorites");
   }
-
-  req.user.favorites.push(property._id);
-
-  await req.user.save();
-
-  res.status(200).json({
-    success: true,
-    message: "Added to favorites",
-    data: req.user.favorites,
-  });
+  res.status(200).json({ success: true, message: "Added to favorites", data: user.favorites });
 });
 
-// Get Favorites
 const getFavorites = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).populate("favorites");
-
-  res.json({
-    success: true,
-    count: user.favorites.length,
-    data: user.favorites,
-  });
+  const user = await User.findById(req.user._id)
+    .select("favorites")
+    .populate("favorites")
+    .lean();
+  res.json({ success: true, count: user.favorites.length, data: user.favorites });
 });
 
-// Remove Favorite
 const removeFavorite = asyncHandler(async (req, res) => {
-  req.user.favorites = req.user.favorites.filter(
-    (id) => id.toString() !== req.params.propertyId
-  );
-
-  await req.user.save();
-
-  res.json({
-    success: true,
-    message: "Removed from favorites",
-  });
+  await User.updateOne({ _id: req.user._id }, { $pull: { favorites: req.params.propertyId } });
+  res.json({ success: true, message: "Removed from favorites" });
 });
 
-module.exports = {
-  addFavorite,
-  getFavorites,
-  removeFavorite,
-};
+module.exports = { addFavorite, getFavorites, removeFavorite };

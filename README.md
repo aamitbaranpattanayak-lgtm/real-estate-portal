@@ -134,6 +134,7 @@ PORT=5000
 MONGO_URI=YOUR_MONGODB_URI
 JWT_SECRET=YOUR_SECRET
 NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 ```
 
 Run backend
@@ -163,7 +164,15 @@ PORT=
 MONGO_URI=
 JWT_SECRET=
 NODE_ENV=
+FRONTEND_URL=
 ```
+
+## Production notes
+
+- Configure Render's health check to `GET /health`. It does not query MongoDB, so it stays lightweight for uptime monitoring.
+- The free Render tier can spin a service down after inactivity. The first request afterwards includes platform startup and MongoDB reconnection time; application-level query optimizations cannot remove that cold-start delay.
+- Use the environment template at `backend/.env.example`. Keep `MONGO_MAX_POOL_SIZE` modest (the default is 10) on Render to avoid exhausting an Atlas connection limit.
+- Set `MONGO_QUERY_LOGS=true` only while diagnosing database latency. It logs completed MongoDB operations slower than `MONGO_SLOW_QUERY_MS` without logging query values.
 
 ---
 
