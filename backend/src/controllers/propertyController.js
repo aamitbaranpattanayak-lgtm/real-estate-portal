@@ -23,7 +23,22 @@ const createProperty = asyncHandler(async (req, res) => {
 const getProperties = asyncHandler(async (req, res) => {
   const { city, purpose, propertyType, minPrice, maxPrice, page, limit } = req.query;
   const filter = {};
-  if (city) filter.city = city;
+  if (city) {
+  if (city === "Delhi-NCR") {
+    filter.city = {
+      $in: [
+        "New Delhi",
+        "Delhi",
+        "Gurugram",
+        "Noida",
+        "Ghaziabad",
+        "Faridabad",
+      ],
+    };
+  } else {
+    filter.city = city;
+  }
+}
   if (purpose) filter.purpose = purpose;
   if (propertyType) filter.propertyType = propertyType;
 
