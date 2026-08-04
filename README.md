@@ -8,6 +8,15 @@ HAVEN is a full-stack MERN Real Estate Portal designed to help users discover, e
 
 # Live Demo
 
+## 🔑 Demo Credentials
+
+### Admin Account
+
+**Email:** `admin123@gmail.com`  
+**Password:** `12345678`
+
+> Use the admin account to access the Admin Dashboard, create properties, edit listings, and manage existing properties.
+
 Frontend:
 https://real-estate-portal-alpha-tan.vercel.app
 
