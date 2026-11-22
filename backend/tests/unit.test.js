@@ -191,6 +191,22 @@ describe("HAVEN Real Estate Portal — Unit Tests", () => {
       expect(calculatePricingMetrics(0, "sale", 1000, 1200).pricePerSqFt).toBeNull();
     });
 
+    it("should reject physically impossible area dimensions where carpet area exceeds total area", () => {
+      const validateAreaSanity = (carpetArea, builtUpArea, totalArea) => {
+        if (carpetArea && builtUpArea && carpetArea > builtUpArea) {
+          throw new Error("Carpet area cannot exceed built-up area");
+        }
+        if (carpetArea && totalArea && carpetArea > totalArea) {
+          throw new Error("Carpet area cannot exceed total area");
+        }
+        return true;
+      };
+
+      expect(() => validateAreaSanity(1200, 1000, 1500)).toThrow("Carpet area cannot exceed built-up area");
+      expect(() => validateAreaSanity(1600, 1800, 1500)).toThrow("Carpet area cannot exceed total area");
+      expect(validateAreaSanity(850, 980, 1100)).toBe(true);
+    });
+
     it("should prevent duplicate rental period suffixes", () => {
       const formatRentalLabel = (formattedPrice) => {
         // If formattedPrice already ends with /mo, do not append / month
@@ -255,7 +271,15 @@ describe("HAVEN Real Estate Portal — Unit Tests", () => {
           hasBadge: true,
         };
       }
-      if (reraNumber && verificationStatus !== "verified") {
+      if (verificationStatus === "rejected") {
+        return {
+          status: "rejected",
+          label: "Registration Rejected",
+          tone: "rose",
+          hasBadge: false,
+        };
+      }
+      if (verificationStatus === "self_reported" || (reraNumber && reraNumber.trim() && verificationStatus !== "unverified")) {
         return {
           status: "self_reported",
           label: "Self-Reported RERA (Pending Verification)",
@@ -276,6 +300,13 @@ describe("HAVEN Real Estate Portal — Unit Tests", () => {
       expect(result.status).toBe("verified");
       expect(result.hasBadge).toBe(true);
       expect(result.label).toBe("Verified Registration");
+    });
+
+    it("should accurately mark rejected RERA registration without displaying pending verification", () => {
+      const result = resolveVerificationBadge("rejected", "INVALID-RERA-123");
+      expect(result.status).toBe("rejected");
+      expect(result.hasBadge).toBe(false);
+      expect(result.label).toBe("Registration Rejected");
     });
 
     it("should flag self-reported registration when reraNumber exists but verification is pending", () => {

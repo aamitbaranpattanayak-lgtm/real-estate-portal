@@ -156,6 +156,8 @@ const validatePropertyPayload = (body) => {
       throw new Error("Carpet area must be a valid non-negative number");
     }
     cleanPayload.carpetArea = numCarpet;
+  } else if (carpetArea === null || carpetArea === "") {
+    cleanPayload.carpetArea = null;
   }
 
   if (builtUpArea !== undefined && builtUpArea !== null && builtUpArea !== "") {
@@ -164,6 +166,8 @@ const validatePropertyPayload = (body) => {
       throw new Error("Built-up area must be a valid non-negative number");
     }
     cleanPayload.builtUpArea = numBuiltUp;
+  } else if (builtUpArea === null || builtUpArea === "") {
+    cleanPayload.builtUpArea = null;
   }
 
   if (superBuiltUpArea !== undefined && superBuiltUpArea !== null && superBuiltUpArea !== "") {
@@ -172,6 +176,19 @@ const validatePropertyPayload = (body) => {
       throw new Error("Super built-up area must be a valid non-negative number");
     }
     cleanPayload.superBuiltUpArea = numSuperBuiltUp;
+  } else if (superBuiltUpArea === null || superBuiltUpArea === "") {
+    cleanPayload.superBuiltUpArea = null;
+  }
+
+  // Cross-field dimensional sanity: Carpet area cannot exceed built-up area or total area
+  if (cleanPayload.carpetArea && cleanPayload.builtUpArea && cleanPayload.carpetArea > cleanPayload.builtUpArea) {
+    throw new Error("Carpet area cannot exceed built-up area");
+  }
+  if (cleanPayload.carpetArea && cleanPayload.superBuiltUpArea && cleanPayload.carpetArea > cleanPayload.superBuiltUpArea) {
+    throw new Error("Carpet area cannot exceed super built-up area");
+  }
+  if (cleanPayload.carpetArea && cleanPayload.area && cleanPayload.carpetArea > cleanPayload.area) {
+    throw new Error("Carpet area cannot exceed total area");
   }
 
   // P2 Multi-Image Gallery & Floor Plan
@@ -197,6 +214,8 @@ const validatePropertyPayload = (body) => {
       throw new Error("Floor number cannot be below basement levels (-2)");
     }
     cleanPayload.floorNumber = fn;
+  } else if (floorNumber === null || floorNumber === "") {
+    cleanPayload.floorNumber = null;
   }
 
   if (totalFloors !== undefined && totalFloors !== null && totalFloors !== "") {
@@ -205,6 +224,12 @@ const validatePropertyPayload = (body) => {
       throw new Error("Total floors cannot be negative");
     }
     cleanPayload.totalFloors = tf;
+  } else if (totalFloors === null || totalFloors === "") {
+    cleanPayload.totalFloors = null;
+  }
+
+  if (cleanPayload.floorNumber !== undefined && cleanPayload.floorNumber !== null && cleanPayload.totalFloors !== undefined && cleanPayload.totalFloors !== null && cleanPayload.floorNumber > cleanPayload.totalFloors) {
+    throw new Error("Floor number cannot exceed total floors");
   }
 
   if (furnishing && validFurnishing.includes(furnishing)) {
@@ -221,6 +246,8 @@ const validatePropertyPayload = (body) => {
       throw new Error("Balconies cannot be negative");
     }
     cleanPayload.balconies = balc;
+  } else if (balconies === null || balconies === "") {
+    cleanPayload.balconies = null;
   }
 
   if (parkingSpaces !== undefined && parkingSpaces !== null && parkingSpaces !== "") {
@@ -229,6 +256,8 @@ const validatePropertyPayload = (body) => {
       throw new Error("Parking spaces cannot be negative");
     }
     cleanPayload.parkingSpaces = park;
+  } else if (parkingSpaces === null || parkingSpaces === "") {
+    cleanPayload.parkingSpaces = null;
   }
 
   // P2 RERA & Verification Workflow

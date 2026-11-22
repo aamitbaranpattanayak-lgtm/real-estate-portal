@@ -170,9 +170,9 @@ export const PropertyDetailsPage = () => {
     ? property.floorPlan || DEFAULT_IMAGE
     : galleryImages[activeMediaIndex] || property.image || DEFAULT_IMAGE;
 
-  // Space efficiency ratio (Carpet Area vs Super Built-up / General Area)
+  // Space efficiency ratio (Carpet Area vs Super Built-up / General Area) with sanity bounding
   const totalAreaBasis = property.superBuiltUpArea || property.area;
-  const spatialEfficiency = property.carpetArea && totalAreaBasis
+  const spatialEfficiency = property.carpetArea && totalAreaBasis && property.carpetArea <= totalAreaBasis
     ? Math.round((property.carpetArea / totalAreaBasis) * 100)
     : null;
 
@@ -398,7 +398,7 @@ export const PropertyDetailsPage = () => {
                   {pricingMetrics.pricePerSqFt ? (
                     <div className="mt-1">
                       <span className="text-xs text-[#14532D] font-bold block">
-                        ₹{pricingMetrics.pricePerSqFt.toLocaleString('en-IN')} {pricingMetrics.unit}
+                        {pricingMetrics.pricePerSqFt.toLocaleString('en-IN')} {pricingMetrics.unit}
                       </span>
                       <span className="text-[11px] text-stone-500 font-medium">
                         Based on {pricingMetrics.basis}

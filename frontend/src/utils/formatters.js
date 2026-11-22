@@ -87,7 +87,17 @@ export const resolveVerificationBadge = (verificationStatus, reraNumber) => {
     };
   }
 
-  if (reraNumber && reraNumber.trim() && verificationStatus !== 'verified') {
+  if (verificationStatus === 'rejected') {
+    return {
+      status: 'rejected',
+      label: 'Registration Rejected',
+      fullLabel: 'RERA Registration Rejected / Invalid',
+      isVerified: false,
+      badgeClass: 'bg-rose-50 text-rose-800 border-rose-200',
+    };
+  }
+
+  if (verificationStatus === 'self_reported' || (reraNumber && reraNumber.trim() && verificationStatus !== 'unverified')) {
     return {
       status: 'self_reported',
       label: 'RERA Self-Reported',
