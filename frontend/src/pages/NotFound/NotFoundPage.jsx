@@ -1,28 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Compass } from 'lucide-react';
+import { Home, Compass, ArrowLeft } from 'lucide-react';
 
 export const NotFoundPage = () => {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center pt-28 pb-20 px-4 text-center">
-      <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-slate-200 shadow-xl space-y-6">
-        <div className="text-6xl font-black text-emerald-600">404</div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Page Not Found</h1>
-        <p className="text-xs text-slate-500">
-          The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
-        </p>
+    <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center pt-28 pb-20 px-4 text-center text-[#111827]">
+      <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-3xl border border-stone-200/80 shadow-sm space-y-6">
+        <div className="text-6xl font-bold tracking-tighter text-[#14532D]">404</div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Page Not Found</h1>
+          <p className="text-xs text-stone-500 leading-relaxed font-normal">
+            The listing or page you are looking for might have been moved, renamed, or is temporarily unavailable.
+          </p>
+        </div>
         <div className="grid grid-cols-2 gap-3 pt-2">
           <Link
             to="/"
-            className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-emerald-600 text-white font-bold text-xs shadow-md hover:bg-emerald-700"
+            className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#14532D] text-white font-bold text-xs shadow-xs hover:bg-[#166534] transition-all"
           >
             <Home className="w-4 h-4" /> Home
           </Link>
           <Link
             to="/properties"
-            className="flex items-center justify-center gap-2 py-3 rounded-2xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50"
+            className="flex items-center justify-center gap-2 py-3 rounded-2xl border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-50 transition-all"
           >
-            <Compass className="w-4 h-4 text-emerald-600" /> Browse
+            <Compass className="w-4 h-4 text-[#14532D]" /> Explore Homes
           </Link>
         </div>
       </div>

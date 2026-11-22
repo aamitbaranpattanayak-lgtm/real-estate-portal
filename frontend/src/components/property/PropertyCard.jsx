@@ -62,6 +62,15 @@ export const PropertyCard = ({ property }) => {
             <span className="bg-white/90 backdrop-blur-md text-stone-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
               {property.purpose === 'sale' ? 'For Sale' : 'For Rent'}
             </span>
+            {property.status && property.status !== 'available' && (
+              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs ${
+                property.status === 'sold'
+                  ? 'bg-rose-600 text-white'
+                  : 'bg-amber-600 text-white'
+              }`}>
+                {property.status}
+              </span>
+            )}
           </div>
 
           <motion.button
@@ -129,7 +138,13 @@ export const PropertyCard = ({ property }) => {
 
         {/* Footer Link */}
         <div className="flex items-center justify-between pt-1">
-          <span className="text-[11px] font-semibold text-stone-400 capitalize">
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${
+            property.status === 'sold'
+              ? 'text-rose-600'
+              : property.status === 'rented'
+              ? 'text-amber-600'
+              : 'text-stone-400'
+          }`}>
             {property.status || 'Available'}
           </span>
           <Link

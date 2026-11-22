@@ -203,9 +203,20 @@ export const PropertyDetailsPage = () => {
             <div className="bg-white p-8 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <span className="bg-emerald-50 text-[#14532D] text-[10px] font-bold px-3 py-1 rounded-md uppercase tracking-wider">
-                    {property.propertyType}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-emerald-50 text-[#14532D] text-[10px] font-bold px-3 py-1 rounded-md uppercase tracking-wider">
+                      {property.propertyType}
+                    </span>
+                    {property.status && property.status !== 'available' && (
+                      <span className={`text-[10px] font-bold px-3 py-1 rounded-md uppercase tracking-wider ${
+                        property.status === 'sold'
+                          ? 'bg-rose-50 text-rose-700'
+                          : 'bg-amber-50 text-amber-700'
+                      }`}>
+                        {property.status}
+                      </span>
+                    )}
+                  </div>
                   <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-2">
                     {property.title}
                   </h1>
@@ -263,16 +274,19 @@ export const PropertyDetailsPage = () => {
             <div className="bg-white p-8 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
               <h3 className="text-xl font-bold text-stone-900">Features & Amenities</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {[
-                  '24/7 Security Guards',
-                  '100% Power Backup',
-                  'Covered Car Parking',
-                  'Modular Fitted Kitchen',
-                  'High-Speed Elevators',
-                  'Clubhouse & Gym',
-                  'Swimming Pool Access',
-                  'Vastu Compliant',
-                ].map((feat, i) => (
+                {(property.amenities && property.amenities.length > 0
+                  ? property.amenities
+                  : [
+                      '24/7 Security Guards',
+                      '100% Power Backup',
+                      'Covered Car Parking',
+                      'Modular Fitted Kitchen',
+                      'High-Speed Elevators',
+                      'Clubhouse & Gym',
+                      'Swimming Pool Access',
+                      'Vastu Compliant',
+                    ]
+                ).map((feat, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs font-semibold text-stone-700 p-2.5 rounded-xl bg-stone-50">
                     <Check className="w-3.5 h-3.5 text-[#14532D]" />
                     <span>{feat}</span>
@@ -336,6 +350,7 @@ export const PropertyDetailsPage = () => {
       <ContactOwnerModal
         isOpen={contactModalOpen}
         onClose={() => setContactModalOpen(false)}
+        propertyId={property._id}
         ownerData={contactData || { ownerName: property.ownerName, ownerEmail: property.ownerEmail, ownerPhone: property.ownerPhone }}
         propertyTitle={property.title}
       />

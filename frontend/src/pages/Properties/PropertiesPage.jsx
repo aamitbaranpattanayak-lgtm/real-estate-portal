@@ -20,6 +20,7 @@ export const PropertiesPage = () => {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   // Filter States initialized from URL query parameters
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [city, setCity] = useState(searchParams.get('city') || '');
   const [purpose, setPurpose] = useState(searchParams.get('purpose') || '');
   const [propertyType, setPropertyType] = useState(searchParams.get('propertyType') || '');
@@ -28,11 +29,12 @@ export const PropertiesPage = () => {
   const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
-  setCity(searchParams.get("city") || "");
-  setPurpose(searchParams.get("purpose") || "");
-  setPropertyType(searchParams.get("propertyType") || "");
-  setMinPrice(searchParams.get("minPrice") || "");
-  setMaxPrice(searchParams.get("maxPrice") || "");
+    setSearchTerm(searchParams.get("search") || "");
+    setCity(searchParams.get("city") || "");
+    setPurpose(searchParams.get("purpose") || "");
+    setPropertyType(searchParams.get("propertyType") || "");
+    setMinPrice(searchParams.get("minPrice") || "");
+    setMaxPrice(searchParams.get("maxPrice") || "");
   }, [searchParams]);
 
   // Fetch properties from backend with explicit backend filter params
@@ -40,6 +42,7 @@ export const PropertiesPage = () => {
     setLoading(true);
 
     const query = {};
+    if (searchTerm.trim()) query.search = searchTerm.trim();
     if (city) query.city = city;
     if (purpose) query.purpose = purpose;
     if (propertyType) query.propertyType = propertyType;
@@ -72,6 +75,7 @@ export const PropertiesPage = () => {
 
   const applyFilters = () => {
     const params = new URLSearchParams();
+    if (searchTerm.trim()) params.set('search', searchTerm.trim());
     if (city) params.set('city', city);
     if (purpose) params.set('purpose', purpose);
     if (propertyType) params.set('propertyType', propertyType);
@@ -83,6 +87,7 @@ export const PropertiesPage = () => {
   };
 
   const handleResetFilters = () => {
+    setSearchTerm('');
     setCity('');
     setPurpose('');
     setPropertyType('');
@@ -133,6 +138,41 @@ export const PropertiesPage = () => {
               </select>
             </div>
           </div>
+        </div>
+
+        {/* Interactive Search Bar */}
+        <div className="mb-8 relative">
+          <Search className="w-4 h-4 text-stone-400 absolute left-4 top-3.5" />
+          <input
+            type="text"
+            placeholder="Search properties by title, location, landmark, or features (e.g. 'Whitefield', 'Villa', 'Sea-View')..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') applyFilters();
+            }}
+            className="w-full pl-11 pr-28 py-3 rounded-2xl border border-stone-200/80 bg-white text-xs font-semibold text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-[#14532D] shadow-xs transition-all"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                const params = new URLSearchParams(searchParams);
+                params.delete('search');
+                setSearchParams(params);
+              }}
+              className="absolute right-24 top-2.5 text-stone-400 hover:text-stone-600 p-1"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button
+            onClick={applyFilters}
+            className="absolute right-2 top-2 px-5 py-1.5 rounded-xl bg-[#14532D] text-white text-xs font-bold hover:bg-[#166534] transition-all shadow-xs"
+          >
+            Search
+          </button>
         </div>
 
         {/* Main Grid: Filter Sidebar + Property Cards */}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { propertyService } from '../../services/propertyService';
+import { inquiryService } from '../../services/inquiryService';
+import { uploadService } from '../../services/uploadService';
 import { formatPrice } from '../../utils/formatters';
 import { 
-  LayoutDashboard, 
   Building2, 
   Plus, 
   Edit3, 
@@ -14,20 +15,38 @@ import {
   TrendingUp, 
   X, 
   AlertTriangle,
-  Check
+  Check,
+  MessageSquare,
+  Upload,
+  Phone,
+  Mail,
+  Calendar,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState('properties'); // 'properties' | 'inquiries'
+
+  // Property states
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [notification, setNotification] = useState(null);
 
+  // Inquiries states
+  const [inquiries, setInquiries] = useState([]);
+  const [loadingInquiries, setLoadingInquiries] = useState(false);
+  const [inquirySearch, setInquirySearch] = useState('');
+
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+
+  // Upload states
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const initialFormState = {
     title: '',
@@ -67,8 +86,23 @@ export const AdminDashboard = () => {
     }
   };
 
+  const fetchAdminInquiries = async () => {
+    setLoadingInquiries(true);
+    try {
+      const res = await inquiryService.getInquiries();
+      if (res.success && Array.isArray(res.data)) {
+        setInquiries(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load admin inquiries:', err);
+    } finally {
+      setLoadingInquiries(false);
+    }
+  };
+
   useEffect(() => {
     fetchAdminProperties();
+    fetchAdminInquiries();
   }, []);
 
   const showNotification = (message, type = 'success') => {
@@ -80,6 +114,7 @@ export const AdminDashboard = () => {
     setEditingProperty(null);
     setFormData(initialFormState);
     setFormError('');
+    setUploadError('');
     setIsModalOpen(true);
   };
 
@@ -94,8 +129,8 @@ export const AdminDashboard = () => {
       address: prop.address || '',
       city: prop.city || '',
       state: prop.state || '',
-      bedrooms: prop.bedrooms || 1,
-      bathrooms: prop.bathrooms || 1,
+      bedrooms: prop.bedrooms !== undefined ? prop.bedrooms : 1,
+      bathrooms: prop.bathrooms !== undefined ? prop.bathrooms : 1,
       area: prop.area || 1000,
       image: prop.image || '',
       ownerName: prop.ownerName || '',
@@ -105,7 +140,28 @@ export const AdminDashboard = () => {
       status: prop.status || 'available',
     });
     setFormError('');
+    setUploadError('');
     setIsModalOpen(true);
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setUploadError('');
+
+    try {
+      const res = await uploadService.uploadImage(file);
+      if (res.success && res.data?.url) {
+        setFormData((prev) => ({ ...prev, image: res.data.url }));
+        showNotification('Image uploaded successfully');
+      }
+    } catch (err) {
+      setUploadError(err.message || 'File upload failed');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleFormSubmit = async (e) => {
@@ -149,12 +205,37 @@ export const AdminDashboard = () => {
     try {
       const res = await propertyService.deleteProperty(deleteTarget._id);
       if (res.success) {
-        showNotification('Property removed');
+        showNotification('Property and associated records deleted');
         setDeleteTarget(null);
         fetchAdminProperties();
+        fetchAdminInquiries();
       }
     } catch (err) {
-      showNotification(err.message || 'Failed to delete', 'error');
+      showNotification(err.message || 'Failed to delete property', 'error');
+    }
+  };
+
+  const handleInquiryStatusChange = async (inquiryId, newStatus) => {
+    try {
+      const res = await inquiryService.updateStatus(inquiryId, newStatus);
+      if (res.success) {
+        showNotification('Inquiry status updated');
+        fetchAdminInquiries();
+      }
+    } catch (err) {
+      showNotification(err.message || 'Failed to update status', 'error');
+    }
+  };
+
+  const handleDeleteInquiry = async (inquiryId) => {
+    try {
+      const res = await inquiryService.deleteInquiry(inquiryId);
+      if (res.success) {
+        showNotification('Inquiry removed');
+        fetchAdminInquiries();
+      }
+    } catch (err) {
+      showNotification(err.message || 'Failed to delete inquiry', 'error');
     }
   };
 
@@ -164,18 +245,26 @@ export const AdminDashboard = () => {
   const forRentCount = properties.filter((p) => p.purpose === 'rent').length;
   const totalValue = properties.reduce((acc, curr) => acc + (curr.price || 0), 0);
 
-  const filteredTableProperties = properties.filter(
+  const filteredProperties = properties.filter(
     (p) =>
       p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.propertyType.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredInquiries = inquiries.filter(
+    (inq) =>
+      inq.name.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      inq.email.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq.property?.title || '').toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      inq.phone.includes(inquirySearch)
+  );
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] pt-28 pb-20 text-[#111827]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
-        {/* Toast */}
+        {/* Toast Notification */}
         <AnimatePresence>
           {notification && (
             <motion.div
@@ -192,7 +281,7 @@ export const AdminDashboard = () => {
                 <Check className="w-4 h-4" />
                 <span>{notification.message}</span>
               </div>
-              <button onClick={() => setNotification(null)}>
+              <button onClick={() => setNotification(null)} className="p-1">
                 <X className="w-4 h-4" />
               </button>
             </motion.div>
@@ -210,16 +299,18 @@ export const AdminDashboard = () => {
             </h1>
           </div>
 
-          <button
-            onClick={handleOpenCreateModal}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all"
-          >
-            <Plus className="w-4 h-4" /> Add Property
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleOpenCreateModal}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Add Property
+            </button>
+          </div>
         </div>
 
         {/* Overview Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-2">
             <div className="flex items-center justify-between text-stone-400">
               <span className="text-[10px] font-bold uppercase tracking-wider">Total Listings</span>
@@ -235,16 +326,16 @@ export const AdminDashboard = () => {
               <Sparkles className="w-4 h-4 text-amber-500" />
             </div>
             <p className="text-3xl font-bold text-stone-900">{featuredCount}</p>
-            <p className="text-xs text-stone-400">Highlighted on Hero</p>
+            <p className="text-xs text-stone-400">Highlighted on homepage</p>
           </div>
 
           <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-2">
             <div className="flex items-center justify-between text-stone-400">
-              <span className="text-[10px] font-bold uppercase tracking-wider">Sale / Rent</span>
-              <TrendingUp className="w-4 h-4 text-blue-600" />
+              <span className="text-[10px] font-bold uppercase tracking-wider">Customer Inquiries</span>
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
             </div>
-            <p className="text-3xl font-bold text-stone-900">{forSaleCount} / {forRentCount}</p>
-            <p className="text-xs text-stone-400">For Sale vs Rent</p>
+            <p className="text-3xl font-bold text-stone-900">{inquiries.length}</p>
+            <p className="text-xs text-stone-400">Direct buyer/renter leads</p>
           </div>
 
           <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-2">
@@ -257,141 +348,318 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
-          <div className="p-6 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h2 className="text-lg font-bold text-stone-900">All Registered Properties</h2>
-            <div className="relative max-w-xs w-full">
-              <input
-                type="text"
-                placeholder="Search by title, city, type..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
-              />
-              <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-3" />
+        {/* Tab Controls */}
+        <div className="flex items-center gap-3 mb-6 border-b border-stone-200 pb-2">
+          <button
+            onClick={() => setActiveTab('properties')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'properties'
+                ? 'bg-[#14532D] text-white shadow-xs'
+                : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            Property Catalog ({properties.length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab('inquiries')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'inquiries'
+                ? 'bg-[#14532D] text-white shadow-xs'
+                : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            Customer Leads & Inquiries ({inquiries.length})
+          </button>
+        </div>
+
+        {/* TAB 1: PROPERTIES TABLE */}
+        {activeTab === 'properties' && (
+          <div className="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+            <div className="p-6 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-lg font-bold text-stone-900">All Registered Properties</h2>
+              <div className="relative max-w-xs w-full">
+                <input
+                  type="text"
+                  placeholder="Filter by title, city, type..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                />
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-3" />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-stone-50 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100">
+                  <tr>
+                    <th className="py-4 px-6">Property</th>
+                    <th className="py-4 px-6">Type & Status</th>
+                    <th className="py-4 px-6">Price</th>
+                    <th className="py-4 px-6">Location</th>
+                    <th className="py-4 px-6">Owner</th>
+                    <th className="py-4 px-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100 font-medium text-stone-700">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-stone-400">Loading catalog...</td>
+                    </tr>
+                  ) : filteredProperties.length > 0 ? (
+                    filteredProperties.map((prop) => (
+                      <tr key={prop._id} className="hover:bg-stone-50/60 transition-colors">
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={prop.image}
+                              alt={prop.title}
+                              className="w-12 h-12 rounded-xl object-cover border border-stone-200 bg-stone-100 flex-shrink-0"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-bold text-stone-900 text-xs truncate max-w-xs">{prop.title}</p>
+                              {prop.featured && (
+                                <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded inline-block mt-0.5 uppercase">
+                                  Featured
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-4 px-6">
+                          <span className="capitalize font-bold text-stone-900">{prop.propertyType}</span>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <span className="text-[10px] text-stone-400 uppercase font-semibold">
+                              {prop.purpose === 'sale' ? 'Sale' : 'Rent'}
+                            </span>
+                            <span className="text-stone-300">•</span>
+                            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                              prop.status === 'sold'
+                                ? 'bg-rose-50 text-rose-700'
+                                : prop.status === 'rented'
+                                ? 'bg-amber-50 text-amber-700'
+                                : 'bg-emerald-50 text-[#14532D]'
+                            }`}>
+                              {prop.status || 'available'}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="py-4 px-6 font-bold text-[#14532D]">
+                          {formatPrice(prop.price, prop.purpose)}
+                        </td>
+
+                        <td className="py-4 px-6 font-semibold">
+                          {prop.city}
+                        </td>
+
+                        <td className="py-4 px-6 text-stone-600">
+                          <p className="font-semibold text-stone-900">{prop.ownerName}</p>
+                          <p className="text-[11px] text-stone-400 truncate">{prop.ownerEmail}</p>
+                        </td>
+
+                        <td className="py-4 px-6 text-right space-x-1.5">
+                          <a
+                            href={`/properties/${prop._id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-2 rounded-lg bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors inline-block"
+                            title="View Property"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </a>
+                          <button
+                            onClick={() => handleOpenEditModal(prop)}
+                            className="p-2 rounded-lg bg-emerald-50 text-[#14532D] hover:bg-emerald-100 transition-colors"
+                            title="Edit Property"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(prop)}
+                            className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                            title="Delete Property"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-stone-400">No properties match search filter.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
+        )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-stone-50 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100">
-                <tr>
-                  <th className="py-4 px-6">Property</th>
-                  <th className="py-4 px-6">Type</th>
-                  <th className="py-4 px-6">Price</th>
-                  <th className="py-4 px-6">Location</th>
-                  <th className="py-4 px-6">Owner</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100 font-medium text-stone-700">
-                {loading ? (
+        {/* TAB 2: INQUIRIES & LEADS TABLE */}
+        {activeTab === 'inquiries' && (
+          <div className="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+            <div className="p-6 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-stone-900">Inbound Customer Inquiries</h2>
+                <p className="text-xs text-stone-500">Live submissions captured from the Contact Owner modal</p>
+              </div>
+              <div className="relative max-w-xs w-full">
+                <input
+                  type="text"
+                  placeholder="Filter inquiries by name, email, phone..."
+                  value={inquirySearch}
+                  onChange={(e) => setInquirySearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                />
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-3" />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-stone-50 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100">
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-stone-400">Loading catalog...</td>
+                    <th className="py-4 px-6">Inquirer</th>
+                    <th className="py-4 px-6">Property Referenced</th>
+                    <th className="py-4 px-6">Inquiry Message</th>
+                    <th className="py-4 px-6">Date</th>
+                    <th className="py-4 px-6">Status</th>
+                    <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
-                ) : filteredTableProperties.length > 0 ? (
-                  filteredTableProperties.map((prop) => (
-                    <tr key={prop._id} className="hover:bg-stone-50/60 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={prop.image}
-                            alt={prop.title}
-                            className="w-10 h-10 rounded-lg object-cover border border-stone-200"
-                          />
-                          <div>
-                            <p className="font-bold text-stone-900 text-xs line-clamp-1">{prop.title}</p>
-                            {prop.featured && (
-                              <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded inline-block mt-0.5 uppercase">
-                                Featured
-                              </span>
-                            )}
+                </thead>
+                <tbody className="divide-y divide-stone-100 font-medium text-stone-700">
+                  {loadingInquiries ? (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-stone-400">Loading inquiries...</td>
+                    </tr>
+                  ) : filteredInquiries.length > 0 ? (
+                    filteredInquiries.map((inq) => (
+                      <tr key={inq._id} className="hover:bg-stone-50/60 transition-colors">
+                        <td className="py-4 px-6">
+                          <p className="font-bold text-stone-900 text-xs">{inq.name}</p>
+                          <div className="space-y-0.5 mt-1 text-[11px] text-stone-500">
+                            <p className="flex items-center gap-1">
+                              <Mail className="w-3 h-3 text-[#14532D]" />
+                              <a href={`mailto:${inq.email}`} className="hover:underline">{inq.email}</a>
+                            </p>
+                            <p className="flex items-center gap-1">
+                              <Phone className="w-3 h-3 text-[#14532D]" />
+                              <a href={`tel:${inq.phone}`} className="hover:underline">{inq.phone}</a>
+                            </p>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td className="py-4 px-6">
-                        <span className="capitalize font-bold text-stone-900">{prop.propertyType}</span>
-                        <span className="block text-[10px] text-stone-400 uppercase font-semibold">
-                          {prop.purpose === 'sale' ? 'Sale' : 'Rent'}
-                        </span>
-                      </td>
+                        <td className="py-4 px-6">
+                          {inq.property ? (
+                            <div>
+                              <a
+                                href={`/properties/${inq.property._id}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-bold text-stone-900 hover:text-[#14532D] transition-colors line-clamp-1"
+                              >
+                                {inq.property.title}
+                              </a>
+                              <p className="text-[11px] text-stone-400">{inq.property.city} • {formatPrice(inq.property.price)}</p>
+                            </div>
+                          ) : (
+                            <span className="text-stone-400 italic">Property Deleted</span>
+                          )}
+                        </td>
 
-                      <td className="py-4 px-6 font-bold text-[#14532D]">
-                        {formatPrice(prop.price, prop.purpose)}
-                      </td>
+                        <td className="py-4 px-6 max-w-sm">
+                          <p className="text-xs text-stone-700 leading-relaxed bg-stone-50 p-2.5 rounded-xl border border-stone-100 whitespace-pre-wrap">
+                            {inq.message}
+                          </p>
+                        </td>
 
-                      <td className="py-4 px-6 font-semibold">
-                        {prop.city}
-                      </td>
+                        <td className="py-4 px-6 text-stone-500 text-[11px]">
+                          {new Date(inq.createdAt).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </td>
 
-                      <td className="py-4 px-6 text-stone-600">
-                        {prop.ownerName}
-                      </td>
+                        <td className="py-4 px-6">
+                          <select
+                            value={inq.status}
+                            onChange={(e) => handleInquiryStatusChange(inq._id, e.target.value)}
+                            className={`p-1.5 rounded-lg text-[10px] font-bold uppercase border cursor-pointer outline-none ${
+                              inq.status === 'resolved'
+                                ? 'bg-emerald-50 text-[#14532D] border-emerald-200'
+                                : inq.status === 'contacted'
+                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                            }`}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="resolved">Resolved</option>
+                          </select>
+                        </td>
 
-                      <td className="py-4 px-6 text-right space-x-1.5">
-                        <a
-                          href={`/properties/${prop._id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="p-2 rounded-lg bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors inline-block"
-                          title="View"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </a>
-                        <button
-                          onClick={() => handleOpenEditModal(prop)}
-                          className="p-2 rounded-lg bg-emerald-50 text-[#14532D] hover:bg-emerald-100 transition-colors"
-                          title="Edit"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteTarget(prop)}
-                          className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <td className="py-4 px-6 text-right">
+                          <button
+                            onClick={() => handleDeleteInquiry(inq._id)}
+                            className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                            title="Delete Lead"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-stone-400">
+                        No customer inquiries found. Inquiries submitted via property pages appear here.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-stone-400">No properties match search.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
 
-      {/* CREATE / EDIT MODAL */}
+      {/* CREATE / EDIT PROPERTY MODAL */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-2xl w-full my-8 overflow-hidden"
             >
-              <div className="bg-[#111827] text-white p-6 flex items-center justify-between">
-                <h3 className="text-lg font-bold">
-                  {editingProperty ? 'Edit Listing' : 'Add Property'}
-                </h3>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 text-stone-400 hover:text-white">
+              <div className="bg-[#14532D] text-white p-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold">
+                    {editingProperty ? 'Edit Property Listing' : 'Register New Property'}
+                  </h3>
+                  <p className="text-xs text-emerald-200">Fill in accurate property and owner details</p>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 text-white/80 hover:text-white rounded-full bg-white/10"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <form onSubmit={handleFormSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                 {formError && (
-                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
-                    {formError}
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    <span>{formError}</span>
                   </div>
                 )}
 
@@ -403,6 +671,7 @@ export const AdminDashboard = () => {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full p-3 rounded-xl border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                    placeholder="e.g. Spacious 3BHK Flat in Whitefield"
                   />
                 </div>
 
@@ -414,16 +683,17 @@ export const AdminDashboard = () => {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="w-full p-3 rounded-xl border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                    placeholder="Provide a detailed overview of the property, surroundings, and amenities..."
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase text-stone-600">Purpose *</label>
                     <select
                       value={formData.purpose}
                       onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                      className="w-full p-3 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
                     >
                       <option value="sale">For Sale</option>
                       <option value="rent">For Rent</option>
@@ -435,7 +705,7 @@ export const AdminDashboard = () => {
                     <select
                       value={formData.propertyType}
                       onChange={(e) => setFormData({ ...formData, propertyType: e.target.value })}
-                      className="w-full p-3 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
                     >
                       <option value="flat">Flat</option>
                       <option value="apartment">Apartment</option>
@@ -448,105 +718,186 @@ export const AdminDashboard = () => {
                   </div>
 
                   <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">Status *</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                    >
+                      <option value="available">Available</option>
+                      <option value="sold">Sold</option>
+                      <option value="rented">Rented</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase text-stone-600">Price (INR) *</label>
                     <input
                       type="number"
                       required
+                      min={0}
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      className="w-full p-3 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      placeholder="e.g. 6500000"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <input
-                    type="text"
-                    placeholder="Address"
-                    required
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
-                  <input
-                    type="text"
-                    placeholder="City"
-                    required
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
-                  <input
-                    type="text"
-                    placeholder="State"
-                    required
-                    value={formData.state}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">Address *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      placeholder="Street / Locality"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">City *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      placeholder="e.g. Bengaluru"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">State *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.state}
+                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      placeholder="e.g. Karnataka"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <input
-                    type="number"
-                    placeholder="Beds"
-                    value={formData.bedrooms}
-                    onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Baths"
-                    value={formData.bathrooms}
-                    onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Area sq.ft"
-                    required
-                    value={formData.area}
-                    onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">Bedrooms</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formData.bedrooms}
+                      onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">Bathrooms</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formData.bathrooms}
+                      onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">Area (sq.ft) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={10}
+                      value={formData.area}
+                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-stone-600">Image URL *</label>
-                  <input
-                    type="url"
-                    required
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    className="w-full p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
+                {/* Image Upload & URL Section with Live Preview */}
+                <div className="space-y-2 p-4 bg-stone-50 rounded-2xl border border-stone-200">
+                  <label className="text-[10px] font-bold uppercase text-stone-700 block">Property Image *</label>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-stone-300 text-xs font-bold text-stone-700 shadow-xs hover:bg-stone-50 cursor-pointer">
+                          <Upload className="w-3.5 h-3.5 text-[#14532D]" />
+                          {uploadingImage ? 'Uploading...' : 'Upload Image File'}
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleFileUpload}
+                            disabled={uploadingImage}
+                            className="hidden"
+                          />
+                        </label>
+                        <span className="text-[10px] text-stone-400">Max 5MB (JPG/PNG/WebP)</span>
+                      </div>
+
+                      <input
+                        type="text"
+                        required
+                        placeholder="Or enter image URL..."
+                        value={formData.image}
+                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-stone-200 bg-white text-xs font-semibold"
+                      />
+                      {uploadError && (
+                        <p className="text-[11px] text-rose-500 font-medium mt-1">{uploadError}</p>
+                      )}
+                    </div>
+
+                    {/* Live Preview Thumbnail */}
+                    <div className="flex items-center justify-center bg-stone-200 rounded-xl overflow-hidden h-28 border border-stone-300">
+                      {formData.image ? (
+                        <img
+                          src={formData.image}
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800';
+                          }}
+                        />
+                      ) : (
+                        <span className="text-xs text-stone-400">No Image Preview</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
+                {/* Owner Information */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                  <input
-                    type="text"
-                    placeholder="Owner Name"
-                    required
-                    value={formData.ownerName}
-                    onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Owner Email"
-                    required
-                    value={formData.ownerEmail}
-                    onChange={(e) => setFormData({ ...formData, ownerEmail: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Owner Phone"
-                    required
-                    value={formData.ownerPhone}
-                    onChange={(e) => setFormData({ ...formData, ownerPhone: e.target.value })}
-                    className="p-3 rounded-xl border border-stone-200 text-xs font-semibold"
-                  />
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">Owner Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.ownerName}
+                      onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">Owner Email *</label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.ownerEmail}
+                      onChange={(e) => setFormData({ ...formData, ownerEmail: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-stone-600">Owner Phone *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={formData.ownerPhone}
+                      onChange={(e) => setFormData({ ...formData, ownerPhone: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 pt-2">
@@ -555,27 +906,27 @@ export const AdminDashboard = () => {
                     id="featuredToggle"
                     checked={formData.featured}
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 text-[#14532D] rounded"
+                    className="w-4 h-4 text-[#14532D] rounded cursor-pointer"
                   />
                   <label htmlFor="featuredToggle" className="text-xs font-bold text-stone-800 cursor-pointer">
                     Highlight as Featured Property on Homepage
                   </label>
                 </div>
 
-                <div className="pt-4 flex items-center justify-end gap-3">
+                <div className="pt-4 flex items-center justify-end gap-3 border-t border-stone-100">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-600"
+                    className="px-5 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting}
-                    className="px-6 py-2.5 rounded-xl bg-[#14532D] text-white font-bold text-xs shadow-xs"
+                    disabled={submitting || uploadingImage}
+                    className="px-6 py-2.5 rounded-xl bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
                   >
-                    {submitting ? 'Saving...' : editingProperty ? 'Save Changes' : 'Create Property'}
+                    {submitting ? 'Saving Property...' : editingProperty ? 'Save Changes' : 'Create Property'}
                   </button>
                 </div>
 
@@ -585,10 +936,10 @@ export const AdminDashboard = () => {
         )}
       </AnimatePresence>
 
-      {/* DELETE CONFIRMATION */}
+      {/* DELETE CONFIRMATION MODAL */}
       <AnimatePresence>
         {deleteTarget && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -600,18 +951,18 @@ export const AdminDashboard = () => {
               </div>
               <h3 className="text-lg font-bold text-stone-900">Delete Property?</h3>
               <p className="text-xs text-stone-500">
-                Are you sure you want to delete "<span className="font-bold text-stone-800">{deleteTarget.title}</span>"?
+                Are you sure you want to delete "<span className="font-bold text-stone-800">{deleteTarget.title}</span>"? This will also clean up associated customer inquiries and user favorites.
               </p>
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
                   onClick={() => setDeleteTarget(null)}
-                  className="py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700"
+                  className="py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmDelete}
-                  className="py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold shadow-xs"
+                  className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs"
                 >
                   Confirm Delete
                 </button>
