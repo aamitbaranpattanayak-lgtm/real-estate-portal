@@ -30,7 +30,8 @@ app.use(
   cors({
     origin(origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(null, true); // Permissive in dev/local for robust cross-origin access
+      if (process.env.NODE_ENV !== "production") return callback(null, true);
+      return callback(new Error("CORS origin not allowed"), false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

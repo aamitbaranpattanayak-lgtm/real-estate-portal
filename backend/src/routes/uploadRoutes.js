@@ -20,15 +20,18 @@ router.post("/", protect, admin, (req, res, next) => {
       return next(new Error("Please attach an image file to upload"));
     }
 
-    // Return the relative URL path served statically by Express and proxied by Vite
-    const imageUrl = `/uploads/${req.file.filename}`;
+    // Handles both Cloudinary hosted URLs and local disk relative URLs
+    const imageUrl =
+      req.file.path && (req.file.path.startsWith("http://") || req.file.path.startsWith("https://"))
+        ? req.file.path
+        : `/uploads/${req.file.filename}`;
 
     res.status(201).json({
       success: true,
       message: "Image uploaded successfully",
       data: {
         url: imageUrl,
-        filename: req.file.filename,
+        filename: req.file.filename || req.file.originalname,
         size: req.file.size,
         mimetype: req.file.mimetype,
       },
