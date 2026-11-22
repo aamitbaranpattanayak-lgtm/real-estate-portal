@@ -91,14 +91,14 @@ export const PropertyDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAF8] pt-28 pb-20 max-w-7xl mx-auto px-6">
-        <div className="h-96 w-full animate-shimmer rounded-3xl mb-8" />
+      <div className="min-h-screen bg-[#FBFBF9] pt-28 pb-20 max-w-7xl mx-auto px-6">
+        <div className="h-96 w-full animate-shimmer rounded-lg mb-8" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
-            <div className="h-10 bg-stone-200 rounded-xl animate-shimmer" />
-            <div className="h-6 w-1/2 bg-stone-200 rounded-xl animate-shimmer" />
+            <div className="h-10 bg-stone-200 rounded-md animate-shimmer" />
+            <div className="h-6 w-1/2 bg-stone-200 rounded-md animate-shimmer" />
           </div>
-          <div className="h-64 bg-stone-200 rounded-3xl animate-shimmer" />
+          <div className="h-64 bg-stone-200 rounded-lg animate-shimmer" />
         </div>
       </div>
     );
@@ -106,13 +106,13 @@ export const PropertyDetailsPage = () => {
 
   if (error || !property) {
     return (
-      <div className="min-h-screen bg-[#FAFAF8] pt-36 pb-20 text-center max-w-md mx-auto px-4">
-        <div className="bg-white p-8 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
+      <div className="min-h-screen bg-[#FBFBF9] pt-36 pb-20 text-center max-w-md mx-auto px-4">
+        <div className="bg-white p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
           <h2 className="text-2xl font-bold text-stone-900">Property Not Found</h2>
-          <p className="text-stone-500 text-xs">{error || 'The property listing you are looking for does not exist.'}</p>
+          <p className="text-stone-600 text-xs sm:text-sm">{error || 'The property listing you are looking for does not exist.'}</p>
           <Link
             to="/properties"
-            className="inline-block px-6 py-3 rounded-xl bg-[#14532D] text-white font-bold text-xs shadow-xs"
+            className="inline-block px-6 py-2.5 rounded-md bg-[#14532D] text-white font-bold text-xs shadow-xs focus-visible:ring-2 focus-visible:ring-[#14532D]"
           >
             Back to Catalog
           </Link>
@@ -122,14 +122,14 @@ export const PropertyDetailsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] pt-28 pb-20 text-[#111827]">
+    <div className="min-h-screen bg-[#FBFBF9] pt-28 pb-20 text-[#111827]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
         {/* Navigation Breadcrumb */}
         <div className="mb-6 flex items-center justify-between">
           <Link
             to="/properties"
-            className="inline-flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-[#14532D] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-[#14532D] transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Properties
           </Link>
@@ -137,18 +137,20 @@ export const PropertyDetailsPage = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-bold shadow-xs hover:bg-stone-50"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-white border border-stone-200 text-stone-700 text-xs font-bold shadow-xs hover:bg-stone-50 focus-visible:ring-2 focus-visible:ring-[#14532D]"
+              aria-label="Share property link"
             >
               <Share2 className="w-3.5 h-3.5" />
               {copiedLink ? 'Copied!' : 'Share'}
             </button>
             <button
               onClick={handleFavoriteToggle}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md border text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] ${
                 fav
                   ? 'bg-rose-500 text-white border-rose-500'
                   : 'bg-white text-stone-700 border-stone-200 hover:bg-rose-50 hover:text-rose-500'
               }`}
+              aria-label={fav ? "Remove from saved collection" : "Save to collection"}
             >
               <Heart className={`w-3.5 h-3.5 ${fav ? 'fill-white' : ''}`} />
               {fav ? 'Saved' : 'Save'}
@@ -158,7 +160,7 @@ export const PropertyDetailsPage = () => {
 
         {/* Hero Imagery */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
-          <div className="lg:col-span-2 relative h-[440px] rounded-3xl overflow-hidden shadow-sm bg-stone-200">
+          <div className="lg:col-span-2 relative h-[440px] rounded-lg overflow-hidden shadow-sm bg-stone-200">
             <img
               src={property.image || DEFAULT_IMAGE}
               alt={property.title}
@@ -166,25 +168,25 @@ export const PropertyDetailsPage = () => {
             />
             <div className="absolute top-4 left-4 flex gap-2">
               {property.featured && (
-                <span className="bg-[#14532D] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                <span className="bg-[#14532D] text-white text-xs font-semibold px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-xs">
                   Featured Home
                 </span>
               )}
-              <span className="bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              <span className="bg-black/70 text-white text-xs font-semibold px-2.5 py-1 rounded-sm uppercase tracking-wider">
                 {property.purpose === 'sale' ? 'For Sale' : 'For Rent'}
               </span>
             </div>
           </div>
 
           <div className="hidden lg:grid grid-rows-2 gap-4 h-[440px]">
-            <div className="rounded-3xl overflow-hidden bg-stone-200">
+            <div className="rounded-lg overflow-hidden bg-stone-200">
               <img
                 src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop"
                 alt="Interior"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               />
             </div>
-            <div className="rounded-3xl overflow-hidden bg-stone-200">
+            <div className="rounded-lg overflow-hidden bg-stone-200">
               <img
                 src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&auto=format&fit=crop"
                 alt="Living Space"
@@ -200,15 +202,15 @@ export const PropertyDetailsPage = () => {
           <div className="lg:col-span-2 space-y-8">
             
             {/* Title & Price Header */}
-            <div className="bg-white p-8 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
+            <div className="bg-white p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="bg-emerald-50 text-[#14532D] text-[10px] font-bold px-3 py-1 rounded-md uppercase tracking-wider">
+                    <span className="bg-emerald-50 text-[#14532D] text-xs font-semibold px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
                       {property.propertyType}
                     </span>
                     {property.status && property.status !== 'available' && (
-                      <span className={`text-[10px] font-bold px-3 py-1 rounded-md uppercase tracking-wider ${
+                      <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-sm uppercase tracking-wider ${
                         property.status === 'sold'
                           ? 'bg-rose-50 text-rose-700'
                           : 'bg-amber-50 text-amber-700'
@@ -227,7 +229,7 @@ export const PropertyDetailsPage = () => {
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">Price</span>
+                  <span className="text-xs text-stone-500 font-semibold uppercase tracking-wider block">Price</span>
                   <p className="text-3xl font-bold text-[#14532D]">
                     {formatPrice(property.price, property.purpose)}
                   </p>
@@ -236,26 +238,26 @@ export const PropertyDetailsPage = () => {
 
               {/* Metrics */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t border-stone-100 text-stone-700">
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-stone-50/50 border border-stone-100">
+                <div className="flex items-center gap-3 p-4 rounded-md bg-stone-50/50 border border-stone-100">
                   <Bed className="w-5 h-5 text-[#14532D]" />
                   <div>
-                    <p className="text-[10px] text-stone-400 font-bold uppercase">Bedrooms</p>
+                    <p className="text-xs text-stone-500 font-semibold uppercase">Bedrooms</p>
                     <p className="font-bold text-stone-900 text-sm">{property.bedrooms} BHK</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-stone-50/50 border border-stone-100">
+                <div className="flex items-center gap-3 p-4 rounded-md bg-stone-50/50 border border-stone-100">
                   <Bath className="w-5 h-5 text-[#14532D]" />
                   <div>
-                    <p className="text-[10px] text-stone-400 font-bold uppercase">Bathrooms</p>
+                    <p className="text-xs text-stone-500 font-semibold uppercase">Bathrooms</p>
                     <p className="font-bold text-stone-900 text-sm">{property.bathrooms} Baths</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-stone-50/50 border border-stone-100">
+                <div className="flex items-center gap-3 p-4 rounded-md bg-stone-50/50 border border-stone-100">
                   <Square className="w-5 h-5 text-[#14532D]" />
                   <div>
-                    <p className="text-[10px] text-stone-400 font-bold uppercase">Area</p>
+                    <p className="text-xs text-stone-500 font-semibold uppercase">Area</p>
                     <p className="font-bold text-stone-900 text-sm">{property.area} sq.ft</p>
                   </div>
                 </div>
@@ -263,15 +265,15 @@ export const PropertyDetailsPage = () => {
             </div>
 
             {/* Description */}
-            <div className="bg-white p-8 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
+            <div className="bg-white p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
               <h3 className="text-xl font-bold text-stone-900">About this home</h3>
-              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+              <p className="text-stone-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
                 {property.description}
               </p>
             </div>
 
             {/* Amenities */}
-            <div className="bg-white p-8 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
+            <div className="bg-white p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
               <h3 className="text-xl font-bold text-stone-900">Features & Amenities</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {(property.amenities && property.amenities.length > 0
@@ -287,7 +289,7 @@ export const PropertyDetailsPage = () => {
                       'Vastu Compliant',
                     ]
                 ).map((feat, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs font-semibold text-stone-700 p-2.5 rounded-xl bg-stone-50">
+                  <div key={i} className="flex items-center gap-2 text-xs font-semibold text-stone-700 p-2.5 rounded-md bg-stone-50 border border-stone-100">
                     <Check className="w-3.5 h-3.5 text-[#14532D]" />
                     <span>{feat}</span>
                   </div>
@@ -299,30 +301,30 @@ export const PropertyDetailsPage = () => {
 
           {/* Right Column: Owner Card */}
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-sm space-y-6 sticky top-28">
+            <div className="bg-white p-6 rounded-lg border border-stone-200 shadow-sm space-y-6 sticky top-28">
               
-              <div className="flex items-center gap-2 text-[10px] font-bold text-[#14532D] uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#14532D] uppercase tracking-wider">
                 <ShieldCheck className="w-4 h-4" /> Verified Owner Listing
               </div>
 
-              <div className="flex items-center gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-100">
+              <div className="flex items-center gap-4 p-4 bg-stone-50 rounded-md border border-stone-100">
                 <div className="w-11 h-11 rounded-full bg-[#14532D] text-white flex items-center justify-center font-bold text-sm">
                   {property.ownerName?.charAt(0).toUpperCase() || 'O'}
                 </div>
                 <div>
                   <h4 className="font-bold text-stone-900 text-sm">{property.ownerName}</h4>
-                  <p className="text-[11px] text-stone-400">Property Representative</p>
+                  <p className="text-xs text-stone-500">Property Representative</p>
                 </div>
               </div>
 
               <button
                 onClick={() => setContactModalOpen(true)}
-                className="w-full py-3.5 rounded-2xl bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all"
+                className="w-full py-3 rounded-md bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
               >
                 Contact Owner
               </button>
 
-              <p className="text-[11px] text-stone-400 text-center pt-2 border-t border-stone-100">
+              <p className="text-xs text-stone-500 text-center pt-2 border-t border-stone-100">
                 Listed on HAVEN • Verified Documentation
               </p>
 

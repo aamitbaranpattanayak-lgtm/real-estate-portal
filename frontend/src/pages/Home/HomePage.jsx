@@ -60,7 +60,7 @@ export const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#111827]">
+    <div className="min-h-screen bg-[#FBFBF9] text-[#111827]">
       
       {/* HERO SECTION - REFINED ARCHITECTURAL FOCUS, NO HEAVY MUDDY OVERLAYS */}
       <section className="relative min-h-[82vh] flex items-center justify-center pt-28 pb-16 overflow-hidden">
@@ -116,32 +116,32 @@ export const HomePage = () => {
             className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs font-semibold text-white/90"
           >
             <div className="flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-[#22C55E]" />
+              <Check className="w-3.5 h-3.5 text-emerald-400" />
               <span>Verified Listings</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-[#22C55E]" />
+              <Check className="w-3.5 h-3.5 text-emerald-400" />
               <span>Direct Owners</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-[#22C55E]" />
+              <Check className="w-3.5 h-3.5 text-emerald-400" />
               <span>Buy & Rent Across India</span>
             </div>
           </motion.div>
 
-          {/* REFINED FLOATING SEARCH CARD */}
+          {/* REFINED ARCHITECTURAL SEARCH CARD */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-10 max-w-3xl mx-auto bg-white/95 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-8 border border-white/60 text-left text-stone-900"
+            className="mt-10 max-w-3xl mx-auto bg-white/95 backdrop-blur-md rounded-lg shadow-xl p-6 sm:p-8 border border-white/60 text-left text-stone-900"
           >
             {/* Purpose Toggle */}
-            <div className="flex items-center gap-2 mb-6 border-b border-stone-100 pb-3">
+            <div className="flex items-center gap-2 mb-6 border-b border-stone-100 pb-3" role="group" aria-label="Transaction Purpose">
               <button
                 type="button"
                 onClick={() => setPurpose('sale')}
-                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`px-5 py-2 rounded-md text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] ${
                   purpose === 'sale'
                     ? 'bg-[#14532D] text-white shadow-xs'
                     : 'text-stone-600 hover:bg-stone-100'
@@ -152,7 +152,7 @@ export const HomePage = () => {
               <button
                 type="button"
                 onClick={() => setPurpose('rent')}
-                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`px-5 py-2 rounded-md text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] ${
                   purpose === 'rent'
                     ? 'bg-[#14532D] text-white shadow-xs'
                     : 'text-stone-600 hover:bg-stone-100'
@@ -167,11 +167,12 @@ export const HomePage = () => {
               
               {/* Location */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Location</label>
+                <label htmlFor="home-search-city" className="text-xs font-semibold uppercase tracking-wider text-stone-600 block">Location</label>
                 <select
+                  id="home-search-city"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] cursor-pointer"
+                  className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
                 >
                   <option value="">All Cities</option>
                   <option value="Bengaluru">Bengaluru</option>
@@ -186,11 +187,12 @@ export const HomePage = () => {
 
               {/* Property Type */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Property Type</label>
+                <label htmlFor="home-search-property-type" className="text-xs font-semibold uppercase tracking-wider text-stone-600 block">Property Type</label>
                 <select
+                  id="home-search-property-type"
                   value={propertyType}
                   onChange={(e) => setPropertyType(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] cursor-pointer"
+                  className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
                 >
                   <option value="">All Types</option>
                   <option value="flat">Flat</option>
@@ -205,13 +207,14 @@ export const HomePage = () => {
 
               {/* Budget */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Max Budget (₹)</label>
+                <label htmlFor="home-search-max-price" className="text-xs font-semibold uppercase tracking-wider text-stone-600 block">Max Budget (₹)</label>
                 <input
+                  id="home-search-max-price"
                   type="number"
                   placeholder="e.g. 10000000"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
+                  className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
                 />
               </div>
 
@@ -219,7 +222,7 @@ export const HomePage = () => {
               <div>
                 <button
                   type="submit"
-                  className="w-full py-3 px-5 rounded-xl bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2"
+                  className="w-full py-2.5 px-5 rounded-md bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
                 >
                   <Search className="w-3.5 h-3.5" />
                   Find your place
@@ -262,7 +265,7 @@ export const HomePage = () => {
             ))}
           </div>
         ) : (
-          <div className="p-8 text-center bg-white rounded-2xl border border-stone-200/80">
+          <div className="p-8 text-center bg-white rounded-lg border border-stone-200/80">
             <p className="text-stone-500 text-xs font-medium">No featured homes currently available.</p>
           </div>
         )}
@@ -324,12 +327,12 @@ export const HomePage = () => {
             <Link
               key={item.type}
               to={`/properties?propertyType=${item.type}`}
-              className="group p-6 rounded-2xl bg-white border border-stone-200/80 hover:border-[#14532D] shadow-xs hover:shadow-sm transition-all text-center flex flex-col items-center justify-center"
+              className="group p-5 rounded-md bg-white border border-stone-200/80 hover:border-[#14532D] shadow-xs hover:shadow-sm transition-all text-center flex flex-col items-center justify-center focus-visible:ring-2 focus-visible:ring-[#14532D]"
             >
               <h3 className="font-bold text-stone-900 text-xs group-hover:text-[#14532D] transition-colors">
                 {item.label}
               </h3>
-              <span className="text-[10px] text-stone-400 mt-1">Explore</span>
+              <span className="text-xs text-stone-500 mt-1">Explore</span>
             </Link>
           ))}
         </div>
@@ -358,7 +361,7 @@ export const HomePage = () => {
               <Link
                 key={cityItem.name}
                 to={`/properties?city=${cityItem.name}`}
-                className="group relative h-64 rounded-2xl overflow-hidden border border-white/10 shadow-lg"
+                className="group relative h-64 rounded-md overflow-hidden border border-white/10 shadow-lg focus-visible:ring-2 focus-visible:ring-white"
               >
                 <img
                   src={cityItem.img}
@@ -386,7 +389,7 @@ export const HomePage = () => {
           <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 tracking-tight">
             Every listing verified. Every decision yours.
           </h2>
-          <p className="text-stone-500 text-xs leading-relaxed">
+          <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
             HAVEN is crafted to strip away real estate noise, false claims, and invasive agent calls.
           </p>
         </div>
@@ -406,12 +409,12 @@ export const HomePage = () => {
               desc: 'No aggressive popups or spam. Search at your own pace.',
             },
           ].map((item, i) => (
-            <div key={i} className="p-8 rounded-2xl bg-white border border-stone-200/70 space-y-3">
-              <div className="w-7 h-7 rounded-full bg-emerald-50 text-[#14532D] flex items-center justify-center font-bold text-xs">
-                <Check className="w-3.5 h-3.5" />
+            <div key={i} className="p-8 rounded-md bg-white border border-stone-200/80 space-y-3 shadow-xs">
+              <div className="w-8 h-8 rounded-md bg-emerald-50 text-[#14532D] flex items-center justify-center font-bold text-xs">
+                <Check className="w-4 h-4" />
               </div>
               <h3 className="font-bold text-stone-900 text-sm">{item.title}</h3>
-              <p className="text-stone-500 text-xs leading-relaxed">{item.desc}</p>
+              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -421,7 +424,7 @@ export const HomePage = () => {
       <section className="py-24 bg-white border-t border-stone-200/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="max-w-xl mb-12">
-            <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-1.5 block">
+            <span className="text-xs font-bold text-stone-500 uppercase tracking-[0.2em] mb-1.5 block">
               Reflections
             </span>
             <h2 className="text-3xl font-bold text-stone-900 tracking-tight">
@@ -447,11 +450,11 @@ export const HomePage = () => {
                 loc: 'Goa',
               },
             ].map((story, i) => (
-              <div key={i} className="p-8 rounded-2xl bg-[#FAFAF8] border border-stone-200/70 space-y-4">
-                <p className="text-stone-600 text-xs italic leading-relaxed">"{story.quote}"</p>
-                <div className="pt-2 border-t border-stone-200/60">
+              <div key={i} className="p-8 rounded-md bg-[#FBFBF9] border border-stone-200/80 space-y-4 shadow-xs">
+                <p className="text-stone-700 text-xs sm:text-sm italic leading-relaxed">"{story.quote}"</p>
+                <div className="pt-2 border-t border-stone-200/80">
                   <p className="font-bold text-stone-900 text-xs">{story.author}</p>
-                  <p className="text-[10px] text-stone-400">{story.loc}</p>
+                  <p className="text-xs text-stone-500">{story.loc}</p>
                 </div>
               </div>
             ))}
@@ -461,22 +464,24 @@ export const HomePage = () => {
 
       {/* NEWSLETTER */}
       <section className="py-20 max-w-4xl mx-auto px-6 text-center">
-        <div className="bg-[#14532D] text-white rounded-3xl p-10 sm:p-14 space-y-4 shadow-lg">
+        <div className="bg-[#14532D] text-white rounded-lg p-10 sm:p-14 space-y-4 shadow-lg">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Stay in touch with homes.
           </h2>
-          <p className="text-emerald-100 text-xs max-w-md mx-auto leading-relaxed">
+          <p className="text-emerald-100 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
             Receive weekly curated property arrivals and thoughtful real estate insights.
           </p>
           <form onSubmit={(e) => e.preventDefault()} className="max-w-md mx-auto flex gap-2 pt-2">
+            <label htmlFor="home-newsletter-email" className="sr-only">Email address for property updates</label>
             <input
+              id="home-newsletter-email"
               type="email"
               placeholder="Enter your email"
-              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-emerald-200/60 text-xs focus:outline-none focus:bg-white/20"
+              className="w-full px-4 py-2.5 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-emerald-200/60 text-xs sm:text-sm focus:outline-none focus:bg-white/20 focus-visible:ring-2 focus-visible:ring-white"
             />
             <button
               type="submit"
-              className="px-5 py-3 rounded-xl bg-white text-[#14532D] font-bold text-xs hover:bg-emerald-50 transition-colors"
+              className="px-5 py-2.5 rounded-md bg-white text-[#14532D] font-bold text-xs sm:text-sm hover:bg-emerald-50 transition-colors focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
             >
               Subscribe
             </button>

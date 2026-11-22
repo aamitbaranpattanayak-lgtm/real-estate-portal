@@ -261,7 +261,7 @@ export const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] pt-28 pb-20 text-[#111827]">
+    <div className="min-h-screen bg-[#FBFBF9] pt-28 pb-20 text-[#111827]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
         {/* Toast Notification */}
@@ -271,7 +271,7 @@ export const AdminDashboard = () => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className={`mb-6 p-4 rounded-2xl border text-xs font-bold flex items-center justify-between shadow-xs ${
+              className={`mb-6 p-4 rounded-md border text-xs font-bold flex items-center justify-between shadow-xs ${
                 notification.type === 'error'
                   ? 'bg-rose-50 border-rose-200 text-rose-700'
                   : 'bg-emerald-50 border-emerald-200 text-[#14532D]'
@@ -281,7 +281,7 @@ export const AdminDashboard = () => {
                 <Check className="w-4 h-4" />
                 <span>{notification.message}</span>
               </div>
-              <button onClick={() => setNotification(null)} className="p-1">
+              <button onClick={() => setNotification(null)} className="p-1" aria-label="Dismiss notification">
                 <X className="w-4 h-4" />
               </button>
             </motion.div>
@@ -302,7 +302,7 @@ export const AdminDashboard = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={handleOpenCreateModal}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#14532D]"
             >
               <Plus className="w-4 h-4" /> Add Property
             </button>
@@ -311,40 +311,40 @@ export const AdminDashboard = () => {
 
         {/* Overview Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between text-stone-400">
-              <span className="text-[10px] font-bold uppercase tracking-wider">Total Listings</span>
+          <div className="bg-white p-6 rounded-lg border border-stone-200 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-stone-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-600">Total Listings</span>
               <Building2 className="w-4 h-4 text-[#14532D]" />
             </div>
             <p className="text-3xl font-bold text-stone-900">{totalProperties}</p>
-            <p className="text-xs text-stone-400">Active in database</p>
+            <p className="text-xs text-stone-500">Active in database</p>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between text-stone-400">
-              <span className="text-[10px] font-bold uppercase tracking-wider">Featured Homes</span>
+          <div className="bg-white p-6 rounded-lg border border-stone-200 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-stone-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-600">Featured Homes</span>
               <Sparkles className="w-4 h-4 text-amber-500" />
             </div>
             <p className="text-3xl font-bold text-stone-900">{featuredCount}</p>
-            <p className="text-xs text-stone-400">Highlighted on homepage</p>
+            <p className="text-xs text-stone-500">Highlighted on homepage</p>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between text-stone-400">
-              <span className="text-[10px] font-bold uppercase tracking-wider">Customer Inquiries</span>
+          <div className="bg-white p-6 rounded-lg border border-stone-200 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-stone-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-600">Customer Inquiries</span>
               <MessageSquare className="w-4 h-4 text-emerald-600" />
             </div>
             <p className="text-3xl font-bold text-stone-900">{inquiries.length}</p>
-            <p className="text-xs text-stone-400">Direct buyer/renter leads</p>
+            <p className="text-xs text-stone-500">Direct buyer/renter leads</p>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between text-stone-400">
-              <span className="text-[10px] font-bold uppercase tracking-wider">Portfolio Valuation</span>
+          <div className="bg-white p-6 rounded-lg border border-stone-200 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-stone-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-600">Portfolio Valuation</span>
               <DollarSign className="w-4 h-4 text-[#14532D]" />
             </div>
             <p className="text-2xl font-bold text-stone-900">{formatPrice(totalValue)}</p>
-            <p className="text-xs text-stone-400">Total catalog value</p>
+            <p className="text-xs text-stone-500">Total catalog value</p>
           </div>
         </div>
 
@@ -352,7 +352,7 @@ export const AdminDashboard = () => {
         <div className="flex items-center gap-3 mb-6 border-b border-stone-200 pb-2">
           <button
             onClick={() => setActiveTab('properties')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer ${
               activeTab === 'properties'
                 ? 'bg-[#14532D] text-white shadow-xs'
                 : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
@@ -364,7 +364,7 @@ export const AdminDashboard = () => {
 
           <button
             onClick={() => setActiveTab('inquiries')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer ${
               activeTab === 'inquiries'
                 ? 'bg-[#14532D] text-white shadow-xs'
                 : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
@@ -377,16 +377,18 @@ export const AdminDashboard = () => {
 
         {/* TAB 1: PROPERTIES TABLE */}
         {activeTab === 'properties' && (
-          <div className="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-lg border border-stone-200 shadow-xs overflow-hidden">
             <div className="p-6 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-lg font-bold text-stone-900">All Registered Properties</h2>
               <div className="relative max-w-xs w-full">
+                <label htmlFor="admin-properties-search" className="sr-only">Filter properties by title, city, or type</label>
                 <input
+                  id="admin-properties-search"
                   type="text"
                   placeholder="Filter by title, city, type..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                  className="w-full pl-9 pr-4 py-2 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
                 />
                 <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-3" />
               </div>
@@ -417,12 +419,12 @@ export const AdminDashboard = () => {
                             <img
                               src={prop.image}
                               alt={prop.title}
-                              className="w-12 h-12 rounded-xl object-cover border border-stone-200 bg-stone-100 flex-shrink-0"
+                              className="w-12 h-12 rounded-md object-cover border border-stone-200 bg-stone-100 flex-shrink-0"
                             />
                             <div className="min-w-0">
                               <p className="font-bold text-stone-900 text-xs truncate max-w-xs">{prop.title}</p>
                               {prop.featured && (
-                                <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded inline-block mt-0.5 uppercase">
+                                <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-sm inline-block mt-0.5 uppercase tracking-wider">
                                   Featured
                                 </span>
                               )}
@@ -433,11 +435,11 @@ export const AdminDashboard = () => {
                         <td className="py-4 px-6">
                           <span className="capitalize font-bold text-stone-900">{prop.propertyType}</span>
                           <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-[10px] text-stone-400 uppercase font-semibold">
+                            <span className="text-xs text-stone-500 uppercase font-semibold">
                               {prop.purpose === 'sale' ? 'Sale' : 'Rent'}
                             </span>
                             <span className="text-stone-300">•</span>
-                            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                            <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded-sm ${
                               prop.status === 'sold'
                                 ? 'bg-rose-50 text-rose-700'
                                 : prop.status === 'rented'
@@ -459,7 +461,7 @@ export const AdminDashboard = () => {
 
                         <td className="py-4 px-6 text-stone-600">
                           <p className="font-semibold text-stone-900">{prop.ownerName}</p>
-                          <p className="text-[11px] text-stone-400 truncate">{prop.ownerEmail}</p>
+                          <p className="text-xs text-stone-500 truncate">{prop.ownerEmail}</p>
                         </td>
 
                         <td className="py-4 px-6 text-right space-x-1.5">
@@ -467,21 +469,23 @@ export const AdminDashboard = () => {
                             href={`/properties/${prop._id}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-2 rounded-lg bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors inline-block"
+                            className="p-2 rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors inline-block"
                             title="View Property"
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </a>
                           <button
+                            type="button"
                             onClick={() => handleOpenEditModal(prop)}
-                            className="p-2 rounded-lg bg-emerald-50 text-[#14532D] hover:bg-emerald-100 transition-colors"
+                            className="p-2 rounded-md bg-emerald-50 text-[#14532D] hover:bg-emerald-100 transition-colors"
                             title="Edit Property"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
                           <button
+                            type="button"
                             onClick={() => setDeleteTarget(prop)}
-                            className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                            className="p-2 rounded-md bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
                             title="Delete Property"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -502,21 +506,23 @@ export const AdminDashboard = () => {
 
         {/* TAB 2: INQUIRIES & LEADS TABLE */}
         {activeTab === 'inquiries' && (
-          <div className="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-lg border border-stone-200 shadow-xs overflow-hidden">
             <div className="p-6 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-stone-900">Inbound Customer Inquiries</h2>
                 <p className="text-xs text-stone-500">Live submissions captured from the Contact Owner modal</p>
               </div>
               <div className="relative max-w-xs w-full">
+                <label htmlFor="admin-inquiries-search" className="sr-only">Filter inquiries by name, email, or phone</label>
                 <input
+                  id="admin-inquiries-search"
                   type="text"
                   placeholder="Filter inquiries by name, email, phone..."
                   value={inquirySearch}
                   onChange={(e) => setInquirySearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                  className="w-full pl-9 pr-4 py-2 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
                 />
-                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-3" />
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-2.5" />
               </div>
             </div>
 
@@ -542,7 +548,7 @@ export const AdminDashboard = () => {
                       <tr key={inq._id} className="hover:bg-stone-50/60 transition-colors">
                         <td className="py-4 px-6">
                           <p className="font-bold text-stone-900 text-xs">{inq.name}</p>
-                          <div className="space-y-0.5 mt-1 text-[11px] text-stone-500">
+                          <div className="space-y-0.5 mt-1 text-xs text-stone-600">
                             <p className="flex items-center gap-1">
                               <Mail className="w-3 h-3 text-[#14532D]" />
                               <a href={`mailto:${inq.email}`} className="hover:underline">{inq.email}</a>
@@ -565,7 +571,7 @@ export const AdminDashboard = () => {
                               >
                                 {inq.property.title}
                               </a>
-                              <p className="text-[11px] text-stone-400">{inq.property.city} • {formatPrice(inq.property.price)}</p>
+                              <p className="text-xs text-stone-500">{inq.property.city} • {formatPrice(inq.property.price)}</p>
                             </div>
                           ) : (
                             <span className="text-stone-400 italic">Property Deleted</span>
@@ -573,12 +579,12 @@ export const AdminDashboard = () => {
                         </td>
 
                         <td className="py-4 px-6 max-w-sm">
-                          <p className="text-xs text-stone-700 leading-relaxed bg-stone-50 p-2.5 rounded-xl border border-stone-100 whitespace-pre-wrap">
+                          <p className="text-xs text-stone-700 leading-relaxed bg-stone-50 p-2.5 rounded-md border border-stone-100 whitespace-pre-wrap">
                             {inq.message}
                           </p>
                         </td>
 
-                        <td className="py-4 px-6 text-stone-500 text-[11px]">
+                        <td className="py-4 px-6 text-stone-600 text-xs font-medium">
                           {new Date(inq.createdAt).toLocaleDateString('en-IN', {
                             day: 'numeric',
                             month: 'short',
@@ -589,8 +595,9 @@ export const AdminDashboard = () => {
                         <td className="py-4 px-6">
                           <select
                             value={inq.status}
+                            aria-label={`Update inquiry status for ${inq.name}`}
                             onChange={(e) => handleInquiryStatusChange(inq._id, e.target.value)}
-                            className={`p-1.5 rounded-lg text-[10px] font-bold uppercase border cursor-pointer outline-none ${
+                            className={`p-1.5 rounded-md text-xs font-bold uppercase border cursor-pointer outline-none ${
                               inq.status === 'resolved'
                                 ? 'bg-emerald-50 text-[#14532D] border-emerald-200'
                                 : inq.status === 'contacted'
@@ -633,23 +640,25 @@ export const AdminDashboard = () => {
       {/* CREATE / EDIT PROPERTY MODAL */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="admin-property-modal-title">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-2xl w-full my-8 overflow-hidden"
+              className="bg-white rounded-lg shadow-2xl border border-stone-200 max-w-2xl w-full my-8 overflow-hidden"
             >
               <div className="bg-[#14532D] text-white p-6 flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-bold">
+                  <h3 id="admin-property-modal-title" className="text-lg font-bold font-serif">
                     {editingProperty ? 'Edit Property Listing' : 'Register New Property'}
                   </h3>
                   <p className="text-xs text-emerald-200">Fill in accurate property and owner details</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="p-2 text-white/80 hover:text-white rounded-full bg-white/10"
+                  aria-label="Close modal"
+                  className="p-2 text-white/80 hover:text-white rounded-md bg-white/10"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -657,43 +666,46 @@ export const AdminDashboard = () => {
 
               <form onSubmit={handleFormSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                 {formError && (
-                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+                  <div className="p-3 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                     <span>{formError}</span>
                   </div>
                 )}
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-stone-600">Property Title *</label>
+                  <label htmlFor="admin-prop-title" className="text-xs font-bold uppercase tracking-wider text-stone-700">Property Title *</label>
                   <input
+                    id="admin-prop-title"
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full p-3 rounded-xl border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                    className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
                     placeholder="e.g. Spacious 3BHK Flat in Whitefield"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-stone-600">Description *</label>
+                  <label htmlFor="admin-prop-description" className="text-xs font-bold uppercase tracking-wider text-stone-700">Description *</label>
                   <textarea
+                    id="admin-prop-description"
                     rows={3}
                     required
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full p-3 rounded-xl border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                    className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
                     placeholder="Provide a detailed overview of the property, surroundings, and amenities..."
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Purpose *</label>
+                    <label htmlFor="admin-prop-purpose" className="text-xs font-bold uppercase tracking-wider text-stone-700">Purpose *</label>
                     <select
+                      id="admin-prop-purpose"
                       value={formData.purpose}
                       onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     >
                       <option value="sale">For Sale</option>
                       <option value="rent">For Rent</option>
@@ -701,11 +713,12 @@ export const AdminDashboard = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Type *</label>
+                    <label htmlFor="admin-prop-type" className="text-xs font-bold uppercase tracking-wider text-stone-700">Type *</label>
                     <select
+                      id="admin-prop-type"
                       value={formData.propertyType}
                       onChange={(e) => setFormData({ ...formData, propertyType: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     >
                       <option value="flat">Flat</option>
                       <option value="apartment">Apartment</option>
@@ -718,11 +731,12 @@ export const AdminDashboard = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Status *</label>
+                    <label htmlFor="admin-prop-status" className="text-xs font-bold uppercase tracking-wider text-stone-700">Status *</label>
                     <select
+                      id="admin-prop-status"
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     >
                       <option value="available">Available</option>
                       <option value="sold">Sold</option>
@@ -731,14 +745,15 @@ export const AdminDashboard = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Price (INR) *</label>
+                    <label htmlFor="admin-prop-price" className="text-xs font-bold uppercase tracking-wider text-stone-700">Price (INR) *</label>
                     <input
+                      id="admin-prop-price"
                       type="number"
                       required
                       min={0}
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                       placeholder="e.g. 6500000"
                     />
                   </div>
@@ -746,35 +761,38 @@ export const AdminDashboard = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Address *</label>
+                    <label htmlFor="admin-prop-address" className="text-xs font-bold uppercase tracking-wider text-stone-700">Address *</label>
                     <input
+                      id="admin-prop-address"
                       type="text"
                       required
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                       placeholder="Street / Locality"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">City *</label>
+                    <label htmlFor="admin-prop-city" className="text-xs font-bold uppercase tracking-wider text-stone-700">City *</label>
                     <input
+                      id="admin-prop-city"
                       type="text"
                       required
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                       placeholder="e.g. Bengaluru"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">State *</label>
+                    <label htmlFor="admin-prop-state" className="text-xs font-bold uppercase tracking-wider text-stone-700">State *</label>
                     <input
+                      id="admin-prop-state"
                       type="text"
                       required
                       value={formData.state}
                       onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                       placeholder="e.g. Karnataka"
                     />
                   </div>
@@ -782,74 +800,79 @@ export const AdminDashboard = () => {
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Bedrooms</label>
+                    <label htmlFor="admin-prop-bedrooms" className="text-xs font-bold uppercase tracking-wider text-stone-700">Bedrooms</label>
                     <input
+                      id="admin-prop-bedrooms"
                       type="number"
                       min={0}
                       value={formData.bedrooms}
                       onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Bathrooms</label>
+                    <label htmlFor="admin-prop-bathrooms" className="text-xs font-bold uppercase tracking-wider text-stone-700">Bathrooms</label>
                     <input
+                      id="admin-prop-bathrooms"
                       type="number"
                       min={0}
                       value={formData.bathrooms}
                       onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Area (sq.ft) *</label>
+                    <label htmlFor="admin-prop-area" className="text-xs font-bold uppercase tracking-wider text-stone-700">Area (sq.ft) *</label>
                     <input
+                      id="admin-prop-area"
                       type="number"
                       required
                       min={10}
                       value={formData.area}
                       onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     />
                   </div>
                 </div>
 
                 {/* Image Upload & URL Section with Live Preview */}
-                <div className="space-y-2 p-4 bg-stone-50 rounded-2xl border border-stone-200">
-                  <label className="text-[10px] font-bold uppercase text-stone-700 block">Property Image *</label>
+                <div className="space-y-2 p-4 bg-stone-50 rounded-lg border border-stone-200">
+                  <label htmlFor="admin-prop-image" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">Property Image *</label>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-stone-300 text-xs font-bold text-stone-700 shadow-xs hover:bg-stone-50 cursor-pointer">
+                        <label htmlFor="admin-prop-file-upload" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-stone-300 text-xs font-bold text-stone-700 shadow-xs hover:bg-stone-50 cursor-pointer">
                           <Upload className="w-3.5 h-3.5 text-[#14532D]" />
                           {uploadingImage ? 'Uploading...' : 'Upload Image File'}
-                          <input
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            onChange={handleFileUpload}
-                            disabled={uploadingImage}
-                            className="hidden"
-                          />
                         </label>
-                        <span className="text-[10px] text-stone-400">Max 5MB (JPG/PNG/WebP)</span>
+                        <input
+                          id="admin-prop-file-upload"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={handleFileUpload}
+                          disabled={uploadingImage}
+                          className="sr-only"
+                        />
+                        <span className="text-xs text-stone-500">Max 5MB</span>
                       </div>
 
                       <input
+                        id="admin-prop-image"
                         type="text"
                         required
                         placeholder="Or enter image URL..."
                         value={formData.image}
                         onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                        className="w-full p-2.5 rounded-xl border border-stone-200 bg-white text-xs font-semibold"
+                        className="w-full p-2.5 rounded-md border border-stone-200 bg-white text-xs font-semibold"
                       />
                       {uploadError && (
-                        <p className="text-[11px] text-rose-500 font-medium mt-1">{uploadError}</p>
+                        <p className="text-xs text-rose-500 font-medium mt-1">{uploadError}</p>
                       )}
                     </div>
 
                     {/* Live Preview Thumbnail */}
-                    <div className="flex items-center justify-center bg-stone-200 rounded-xl overflow-hidden h-28 border border-stone-300">
+                    <div className="flex items-center justify-center bg-stone-200 rounded-md overflow-hidden h-28 border border-stone-300">
                       {formData.image ? (
                         <img
                           src={formData.image}
@@ -869,33 +892,36 @@ export const AdminDashboard = () => {
                 {/* Owner Information */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Owner Name *</label>
+                    <label htmlFor="admin-prop-owner-name" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Name *</label>
                     <input
+                      id="admin-prop-owner-name"
                       type="text"
                       required
                       value={formData.ownerName}
                       onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Owner Email *</label>
+                    <label htmlFor="admin-prop-owner-email" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Email *</label>
                     <input
+                      id="admin-prop-owner-email"
                       type="email"
                       required
                       value={formData.ownerEmail}
                       onChange={(e) => setFormData({ ...formData, ownerEmail: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-stone-600">Owner Phone *</label>
+                    <label htmlFor="admin-prop-owner-phone" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Phone *</label>
                     <input
+                      id="admin-prop-owner-phone"
                       type="tel"
                       required
                       value={formData.ownerPhone}
                       onChange={(e) => setFormData({ ...formData, ownerPhone: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 text-xs font-semibold"
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
                     />
                   </div>
                 </div>
@@ -906,7 +932,7 @@ export const AdminDashboard = () => {
                     id="featuredToggle"
                     checked={formData.featured}
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 text-[#14532D] rounded cursor-pointer"
+                    className="w-4 h-4 text-[#14532D] rounded-sm cursor-pointer"
                   />
                   <label htmlFor="featuredToggle" className="text-xs font-bold text-stone-800 cursor-pointer">
                     Highlight as Featured Property on Homepage
@@ -917,14 +943,14 @@ export const AdminDashboard = () => {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50"
+                    className="px-5 py-2.5 rounded-md border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting || uploadingImage}
-                    className="px-6 py-2.5 rounded-xl bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
+                    className="px-6 py-2.5 rounded-md bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
                   >
                     {submitting ? 'Saving Property...' : editingProperty ? 'Save Changes' : 'Create Property'}
                   </button>
@@ -939,30 +965,32 @@ export const AdminDashboard = () => {
       {/* DELETE CONFIRMATION MODAL */}
       <AnimatePresence>
         {deleteTarget && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="delete-property-modal-title">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl p-6 max-w-sm w-full border border-stone-200 shadow-xl text-center space-y-4"
+              className="bg-white rounded-lg p-6 max-w-sm w-full border border-stone-200 shadow-xl text-center space-y-4"
             >
-              <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-md bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
                 <AlertTriangle className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-stone-900">Delete Property?</h3>
+              <h3 id="delete-property-modal-title" className="text-lg font-bold text-stone-900 font-serif">Delete Property?</h3>
               <p className="text-xs text-stone-500">
                 Are you sure you want to delete "<span className="font-bold text-stone-800">{deleteTarget.title}</span>"? This will also clean up associated customer inquiries and user favorites.
               </p>
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
+                  type="button"
                   onClick={() => setDeleteTarget(null)}
-                  className="py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-50"
+                  className="py-2.5 rounded-md border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-50"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={handleConfirmDelete}
-                  className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs"
+                  className="py-2.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs"
                 >
                   Confirm Delete
                 </button>

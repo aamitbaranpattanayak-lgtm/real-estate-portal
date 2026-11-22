@@ -101,7 +101,7 @@ export const Navbar = () => {
             </Link>
             <Link
               to="/favorites"
-              className={`relative flex items-center gap-1.5 transition-colors hover:text-[#22C55E] ${
+              className={`relative flex items-center gap-1.5 transition-colors hover:text-[#22C55E] focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs ${
                 location.pathname === '/favorites'
                   ? 'text-[#22C55E]'
                   : scrolled || !isHomePage ? 'text-stone-700' : 'text-white/90'
@@ -109,7 +109,7 @@ export const Navbar = () => {
             >
               Saved
               {favoriteCount > 0 && (
-                <span className="bg-[#14532D] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                <span className="bg-[#14532D] text-white text-xs font-bold px-1.5 py-0.2 rounded-xs min-w-[18px] text-center">
                   {favoriteCount}
                 </span>
               )}
@@ -122,13 +122,15 @@ export const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                  className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md border text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] ${
                     scrolled || !isHomePage
                       ? 'border-stone-200 bg-white text-stone-800 hover:bg-stone-50'
                       : 'border-white/20 bg-white/10 backdrop-blur-md text-white hover:bg-white/20'
                   }`}
+                  aria-expanded={profileDropdownOpen}
+                  aria-label="User profile menu"
                 >
-                  <div className="w-6 h-6 rounded-full bg-[#14532D] text-white flex items-center justify-center font-bold text-[10px]">
+                  <div className="w-6 h-6 rounded-md bg-[#14532D] text-white flex items-center justify-center font-bold text-xs">
                     {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </div>
                   <span className="max-w-[100px] truncate">{user?.name}</span>
@@ -141,17 +143,17 @@ export const Navbar = () => {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 8 }}
-                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-stone-100 py-2 z-50 text-stone-800"
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-xl border border-stone-200 py-2 z-50 text-stone-800"
                     >
                       <div className="px-4 py-2.5 border-b border-stone-100">
-                        <p className="text-[10px] text-stone-400 font-bold uppercase">Signed in as</p>
+                        <p className="text-xs text-stone-500 font-semibold uppercase">Signed in as</p>
                         <p className="text-xs font-bold text-stone-900 truncate">{user?.email}</p>
                       </div>
 
                       {isAdmin && (
                         <Link
                           to="/admin"
-                          className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold hover:bg-stone-50 text-stone-700 transition-colors"
+                          className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold hover:bg-stone-50 text-stone-700 transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D]"
                         >
                           <LayoutDashboard className="w-3.5 h-3.5 text-[#14532D]" />
                           Admin Console
@@ -160,7 +162,7 @@ export const Navbar = () => {
 
                       <Link
                         to="/favorites"
-                        className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold hover:bg-stone-50 text-stone-700 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold hover:bg-stone-50 text-stone-700 transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D]"
                       >
                         <Heart className="w-3.5 h-3.5 text-rose-500" />
                         Saved Homes ({favoriteCount})
@@ -168,7 +170,7 @@ export const Navbar = () => {
 
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-semibold hover:bg-rose-50 text-rose-600 transition-colors border-t border-stone-100"
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-semibold hover:bg-rose-50 text-rose-600 transition-colors border-t border-stone-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-rose-500"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         Log Out
@@ -181,7 +183,7 @@ export const Navbar = () => {
               <div className="flex items-center gap-5 text-xs font-semibold">
                 <Link
                   to="/login"
-                  className={`transition-colors ${
+                  className={`transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs ${
                     scrolled || !isHomePage
                       ? 'text-stone-800 hover:text-[#14532D]'
                       : 'text-white hover:text-emerald-300'
@@ -191,7 +193,7 @@ export const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-[#14532D] text-white px-5 py-2.5 rounded-full hover:bg-[#166534] transition-all shadow-xs"
+                  className="bg-[#14532D] text-white px-4 py-2 rounded-md hover:bg-[#166534] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-white"
                 >
                   Let's Find Your Place
                 </Link>
@@ -203,11 +205,12 @@ export const Navbar = () => {
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2 rounded-xl border transition-colors ${
+              className={`p-2 rounded-md border transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D] ${
                 scrolled || !isHomePage
                   ? 'border-stone-200 text-stone-800 hover:bg-stone-100'
                   : 'border-white/20 text-white hover:bg-white/10'
               }`}
+              aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -237,7 +240,7 @@ export const Navbar = () => {
               </Link>
               <Link to="/favorites" className="flex items-center justify-between py-2">
                 Saved Homes
-                <span className="bg-[#14532D] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-[#14532D] text-white text-xs font-bold px-2 py-0.5 rounded-xs">
                   {favoriteCount}
                 </span>
               </Link>
@@ -259,13 +262,13 @@ export const Navbar = () => {
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     <Link
                       to="/login"
-                      className="text-center text-xs font-bold py-3 rounded-xl border border-stone-200 text-stone-800"
+                      className="text-center text-xs font-bold py-2.5 rounded-md border border-stone-200 text-stone-800 focus-visible:ring-2 focus-visible:ring-[#14532D]"
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/register"
-                      className="text-center text-xs font-bold py-3 rounded-xl bg-[#14532D] text-white"
+                      className="text-center text-xs font-bold py-2.5 rounded-md bg-[#14532D] text-white focus-visible:ring-2 focus-visible:ring-[#14532D]"
                     >
                       Join HAVEN
                     </Link>

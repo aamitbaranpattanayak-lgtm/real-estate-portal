@@ -98,7 +98,7 @@ export const PropertiesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] pt-28 pb-20 text-[#111827]">
+    <div className="min-h-screen bg-[#FBFBF9] pt-28 pb-20 text-[#111827]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
         {/* Page Header */}
@@ -110,7 +110,7 @@ export const PropertiesPage = () => {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
               Curated homes across India.
             </h1>
-            <p className="text-stone-500 text-xs mt-1">
+            <p className="text-stone-600 text-xs mt-1">
               Showing <span className="font-bold text-stone-900">{properties.length}</span> verified property listings
             </p>
           </div>
@@ -119,17 +119,20 @@ export const PropertiesPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileFilterOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-200 bg-white text-stone-700 text-xs font-bold shadow-xs hover:bg-stone-50"
+              className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-md border border-stone-200 bg-white text-stone-700 text-xs font-bold shadow-xs hover:bg-stone-50 focus-visible:ring-2 focus-visible:ring-[#14532D]"
+              aria-label="Open filter drawer"
             >
               <Filter className="w-4 h-4 text-[#14532D]" /> Filter
             </button>
 
-            <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-stone-200 bg-white text-xs font-bold text-stone-700 shadow-xs">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-md border border-stone-200 bg-white text-xs font-bold text-stone-700 shadow-xs">
+              <label htmlFor="sort-by-select" className="sr-only">Sort properties</label>
               <ArrowUpDown className="w-3.5 h-3.5 text-stone-400" />
               <select
+                id="sort-by-select"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-transparent outline-none cursor-pointer"
+                className="bg-transparent outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs"
               >
                 <option value="newest">Sort: Newest First</option>
                 <option value="price-low">Price: Low to High</option>
@@ -142,8 +145,10 @@ export const PropertiesPage = () => {
 
         {/* Interactive Search Bar */}
         <div className="mb-8 relative">
+          <label htmlFor="properties-search-input" className="sr-only">Search properties</label>
           <Search className="w-4 h-4 text-stone-400 absolute left-4 top-3.5" />
           <input
+            id="properties-search-input"
             type="text"
             placeholder="Search properties by title, location, landmark, or features (e.g. 'Whitefield', 'Villa', 'Sea-View')..."
             value={searchTerm}
@@ -151,7 +156,7 @@ export const PropertiesPage = () => {
             onKeyDown={(e) => {
               if (e.key === 'Enter') applyFilters();
             }}
-            className="w-full pl-11 pr-28 py-3 rounded-2xl border border-stone-200/80 bg-white text-xs font-semibold text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-[#14532D] shadow-xs transition-all"
+            className="w-full pl-11 pr-28 py-3 rounded-md border border-stone-200 bg-white text-xs font-semibold text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] shadow-xs transition-all"
           />
           {searchTerm && (
             <button
@@ -161,15 +166,15 @@ export const PropertiesPage = () => {
                 params.delete('search');
                 setSearchParams(params);
               }}
-              className="absolute right-24 top-2.5 text-stone-400 hover:text-stone-600 p-1"
-              title="Clear search"
+              className="absolute right-24 top-2.5 text-stone-400 hover:text-stone-600 p-1 focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs"
+              aria-label="Clear search"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
           <button
             onClick={applyFilters}
-            className="absolute right-2 top-2 px-5 py-1.5 rounded-xl bg-[#14532D] text-white text-xs font-bold hover:bg-[#166534] transition-all shadow-xs"
+            className="absolute right-2 top-2 px-5 py-1.5 rounded-md bg-[#14532D] text-white text-xs font-bold hover:bg-[#166534] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
           >
             Search
           </button>
@@ -179,14 +184,15 @@ export const PropertiesPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           {/* Desktop Filter Sidebar */}
-          <div className="hidden lg:block space-y-6 bg-white p-6 rounded-2xl border border-stone-200/80 shadow-xs h-fit sticky top-28">
+          <div className="hidden lg:block space-y-6 bg-white p-6 rounded-lg border border-stone-200 shadow-xs h-fit sticky top-28">
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
               <div className="flex items-center gap-2 font-bold text-stone-900 text-sm">
                 <SlidersHorizontal className="w-4 h-4 text-[#14532D]" /> Filter Options
               </div>
               <button
                 onClick={handleResetFilters}
-                className="flex items-center gap-1 text-xs text-stone-400 hover:text-rose-600 transition-colors font-medium"
+                className="flex items-center gap-1 text-xs text-stone-500 hover:text-rose-600 transition-colors font-medium focus-visible:ring-2 focus-visible:ring-rose-500 rounded-xs"
+                aria-label="Reset all filters"
               >
                 <RotateCcw className="w-3 h-3" /> Reset
               </button>
@@ -194,8 +200,8 @@ export const PropertiesPage = () => {
 
             {/* Purpose */}
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Purpose</label>
-              <div className="grid grid-cols-3 gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-stone-700 block">Purpose</span>
+              <div className="grid grid-cols-3 gap-2" role="group" aria-label="Filter by purpose">
                 {[
                   { label: 'All', value: '' },
                   { label: 'Buy', value: 'sale' },
@@ -204,7 +210,7 @@ export const PropertiesPage = () => {
                   <button
                     key={opt.value}
                     onClick={() => setPurpose(opt.value)}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all border ${
+                    className={`py-2 rounded-md text-xs font-bold transition-all border focus-visible:ring-2 focus-visible:ring-[#14532D] ${
                       purpose === opt.value
                         ? 'bg-[#14532D] text-white border-[#14532D] shadow-xs'
                         : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
@@ -217,12 +223,13 @@ export const PropertiesPage = () => {
             </div>
 
             {/* City */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">City</label>
+            <div className="space-y-1.5">
+              <label htmlFor="filter-desktop-city" className="text-xs font-semibold uppercase tracking-wider text-stone-700 block">City</label>
               <select
+                id="filter-desktop-city"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
+                className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
               >
                 <option value="">All Cities</option>
                 <option value="Bengaluru">Bengaluru</option>
@@ -236,12 +243,13 @@ export const PropertiesPage = () => {
             </div>
 
             {/* Property Type */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Property Type</label>
+            <div className="space-y-1.5">
+              <label htmlFor="filter-desktop-type" className="text-xs font-semibold uppercase tracking-wider text-stone-700 block">Property Type</label>
               <select
+                id="filter-desktop-type"
                 value={propertyType}
                 onChange={(e) => setPropertyType(e.target.value)}
-                className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
+                className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
               >
                 <option value="">All Types</option>
                 <option value="flat">Flat</option>
@@ -255,30 +263,38 @@ export const PropertiesPage = () => {
             </div>
 
             {/* Price Range */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Budget Range (₹)</label>
+            <div className="space-y-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-stone-700 block">Budget Range (₹)</span>
               <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
-                />
+                <div>
+                  <label htmlFor="filter-desktop-min-price" className="sr-only">Minimum Price</label>
+                  <input
+                    id="filter-desktop-min-price"
+                    type="number"
+                    placeholder="Min"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="filter-desktop-max-price" className="sr-only">Maximum Price</label>
+                  <input
+                    id="filter-desktop-max-price"
+                    type="number"
+                    placeholder="Max"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Apply Action */}
             <button
               onClick={applyFilters}
-              className="w-full py-3 bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+              className="w-full py-2.5 bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs rounded-md shadow-xs transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
             >
               Apply Filter Parameters
             </button>
@@ -295,17 +311,17 @@ export const PropertiesPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="p-12 text-center bg-white rounded-2xl border border-stone-200/80 shadow-xs space-y-4">
-                <div className="w-14 h-14 rounded-full bg-emerald-50 text-[#14532D] flex items-center justify-center mx-auto">
+              <div className="p-12 text-center bg-white rounded-lg border border-stone-200 shadow-xs space-y-4">
+                <div className="w-14 h-14 rounded-md bg-emerald-50 text-[#14532D] flex items-center justify-center mx-auto">
                   <Search className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl font-bold text-stone-900">No matching homes found</h3>
-                <p className="text-stone-500 text-xs max-w-sm mx-auto">
+                <p className="text-stone-600 text-xs max-w-sm mx-auto">
                   Try adjusting your filter selection or clearing price bounds.
                 </p>
                 <button
                   onClick={handleResetFilters}
-                  className="px-5 py-2.5 rounded-xl bg-[#14532D] text-white text-xs font-bold shadow-xs hover:bg-[#166534] transition-all"
+                  className="px-5 py-2.5 rounded-md bg-[#14532D] text-white text-xs font-bold shadow-xs hover:bg-[#166534] transition-all focus-visible:ring-2 focus-visible:ring-[#14532D]"
                 >
                   Clear All Filters
                 </button>
@@ -320,7 +336,12 @@ export const PropertiesPage = () => {
       {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileFilterOpen && (
-          <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs">
+          <div 
+            className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-filter-title"
+          >
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -328,20 +349,25 @@ export const PropertiesPage = () => {
               className="w-full max-w-xs bg-white h-full p-6 space-y-6 overflow-y-auto"
             >
               <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-                <div className="flex items-center gap-2 font-bold text-stone-900 text-sm">
+                <div id="mobile-filter-title" className="flex items-center gap-2 font-bold text-stone-900 text-sm">
                   <Filter className="w-4 h-4 text-[#14532D]" /> Filters
                 </div>
-                <button onClick={() => setMobileFilterOpen(false)} className="p-2 text-stone-400">
+                <button 
+                  onClick={() => setMobileFilterOpen(false)} 
+                  className="p-2 text-stone-500 hover:text-stone-700 rounded-md focus-visible:ring-2 focus-visible:ring-[#14532D]"
+                  aria-label="Close filter drawer"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-stone-400">Purpose</label>
+                <label htmlFor="filter-mobile-purpose" className="text-xs font-semibold uppercase text-stone-700 block">Purpose</label>
                 <select
+                  id="filter-mobile-purpose"
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold"
+                  className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-[#14532D]"
                 >
                   <option value="">All</option>
                   <option value="sale">Buy</option>
@@ -350,11 +376,12 @@ export const PropertiesPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-stone-400">City</label>
+                <label htmlFor="filter-mobile-city" className="text-xs font-semibold uppercase text-stone-700 block">City</label>
                 <select
+                  id="filter-mobile-city"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold"
+                  className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-[#14532D]"
                 >
                   <option value="">All Cities</option>
                   <option value="Bengaluru">Bengaluru</option>
@@ -362,19 +389,21 @@ export const PropertiesPage = () => {
                   <option value="Delhi-NCR">Delhi NCR</option>
                   <option value="Hyderabad">Hyderabad</option>
                   <option value="Pune">Pune</option>
+                  <option value="Kolkata">Kolkata</option>
+                  <option value="Goa">Goa</option>
                 </select>
               </div>
 
               <div className="pt-6 space-y-3">
                 <button
                   onClick={applyFilters}
-                  className="w-full py-3 rounded-xl bg-[#14532D] text-white font-bold text-xs shadow-xs"
+                  className="w-full py-2.5 rounded-md bg-[#14532D] text-white font-bold text-xs shadow-xs focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
                 >
                   Apply Filters
                 </button>
                 <button
                   onClick={handleResetFilters}
-                  className="w-full py-3 rounded-xl border border-stone-200 text-stone-700 font-bold text-xs"
+                  className="w-full py-2.5 rounded-md border border-stone-200 text-stone-700 font-bold text-xs focus-visible:ring-2 focus-visible:ring-stone-400 cursor-pointer"
                 >
                   Reset
                 </button>

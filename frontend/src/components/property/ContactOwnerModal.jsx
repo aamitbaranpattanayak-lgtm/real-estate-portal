@@ -96,54 +96,59 @@ export const ContactOwnerModal = ({ isOpen, onClose, ownerData, propertyTitle, p
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm overflow-y-auto">
+      <div 
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm overflow-y-auto"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="contact-modal-title"
+      >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
-          className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-lg w-full overflow-hidden my-8"
+          className="bg-white rounded-lg shadow-2xl border border-stone-200 max-w-lg w-full overflow-hidden my-8"
         >
           {/* Header */}
           <div className="bg-[#14532D] text-white p-6 relative">
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-              aria-label="Close modal"
+              className="absolute top-4 right-4 p-2 rounded-md bg-white/10 hover:bg-white/20 text-white transition-colors focus-visible:ring-2 focus-visible:ring-white"
+              aria-label="Close contact modal"
             >
               <X className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2 text-emerald-200 text-[10px] font-bold uppercase tracking-widest mb-1.5">
+            <div className="flex items-center gap-2 text-emerald-200 text-xs font-bold uppercase tracking-wider mb-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-300" /> Direct Owner Connection
             </div>
-            <h3 className="text-xl font-bold text-white tracking-tight">Contact Property Representative</h3>
-            <p className="text-xs text-emerald-100/80 line-clamp-1 mt-1 font-medium">{propertyTitle}</p>
+            <h3 id="contact-modal-title" className="text-xl font-bold text-white tracking-tight">Contact Property Representative</h3>
+            <p className="text-xs text-emerald-100/90 line-clamp-1 mt-1 font-medium">{propertyTitle}</p>
           </div>
 
           <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
             
             {/* Owner Info Bar */}
-            <div className="flex items-center gap-4 p-4 bg-[#FAFAF8] rounded-2xl border border-stone-200/80">
-              <div className="w-12 h-12 rounded-2xl bg-[#14532D] text-white flex items-center justify-center font-bold text-base shadow-xs">
+            <div className="flex items-center gap-4 p-4 bg-[#FBFBF9] rounded-md border border-stone-200">
+              <div className="w-12 h-12 rounded-md bg-[#14532D] text-white flex items-center justify-center font-bold text-base shadow-xs">
                 {ownerData?.ownerName ? ownerData.ownerName.charAt(0).toUpperCase() : 'O'}
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-stone-900 text-sm truncate">{ownerData?.ownerName || 'Property Representative'}</h4>
-                <p className="text-[11px] text-[#14532D] font-semibold">Verified Owner / Direct Representative</p>
+                <p className="text-xs text-[#14532D] font-semibold">Verified Owner / Direct Representative</p>
               </div>
             </div>
 
             {/* Quick Contact Info Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-2xl border border-stone-200 bg-white flex flex-col justify-between space-y-1.5">
+              <div className="p-3.5 rounded-md border border-stone-200 bg-white flex flex-col justify-between space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-stone-400">
+                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase text-stone-600">
                     <Phone className="w-3.5 h-3.5 text-[#14532D]" /> Direct Phone
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyPhone}
-                    className="text-stone-400 hover:text-[#14532D] transition-colors p-1"
-                    title="Copy Phone Number"
+                    className="text-stone-500 hover:text-[#14532D] transition-colors p-1 rounded-sm focus-visible:ring-2 focus-visible:ring-[#14532D]"
+                    aria-label="Copy phone number"
                   >
                     {copiedPhone ? <Check className="w-3.5 h-3.5 text-[#14532D]" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
@@ -156,16 +161,16 @@ export const ContactOwnerModal = ({ isOpen, onClose, ownerData, propertyTitle, p
                 </a>
               </div>
 
-              <div className="p-3.5 rounded-2xl border border-stone-200 bg-white flex flex-col justify-between space-y-1.5">
+              <div className="p-3.5 rounded-md border border-stone-200 bg-white flex flex-col justify-between space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-stone-400">
+                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase text-stone-600">
                     <Mail className="w-3.5 h-3.5 text-[#14532D]" /> Direct Email
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyEmail}
-                    className="text-stone-400 hover:text-[#14532D] transition-colors p-1"
-                    title="Copy Email Address"
+                    className="text-stone-500 hover:text-[#14532D] transition-colors p-1 rounded-sm focus-visible:ring-2 focus-visible:ring-[#14532D]"
+                    aria-label="Copy email address"
                   >
                     {copiedEmail ? <Check className="w-3.5 h-3.5 text-[#14532D]" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
@@ -186,21 +191,21 @@ export const ContactOwnerModal = ({ isOpen, onClose, ownerData, propertyTitle, p
                   Send Formal Inquiry
                 </span>
                 {user && (
-                  <span className="text-[10px] font-semibold text-[#14532D] bg-emerald-50 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-[#14532D] bg-emerald-50 px-2 py-0.5 rounded-sm">
                     Signed in as {user.name}
                   </span>
                 )}
               </div>
 
               {errorMessage && (
-                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                <div className="p-3.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
               )}
 
               {submitSuccess && (
-                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-[#14532D] text-xs font-bold flex items-center gap-2">
+                <div className="p-4 rounded-md bg-emerald-50 border border-emerald-200 text-[#14532D] text-xs font-bold flex items-center gap-2">
                   <Check className="w-4 h-4 text-[#14532D] flex-shrink-0" />
                   <span>Inquiry sent to owner! A representative will reach out soon.</span>
                 </div>
@@ -208,57 +213,61 @@ export const ContactOwnerModal = ({ isOpen, onClose, ownerData, propertyTitle, p
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-stone-500">Your Full Name *</label>
+                  <label htmlFor="inquiry-sender-name" className="text-xs font-semibold uppercase text-stone-700 block">Your Full Name *</label>
                   <input
+                    id="inquiry-sender-name"
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Ramesh Kumar"
-                    className="w-full p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
+                    className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-stone-500">Your Phone Number *</label>
+                  <label htmlFor="inquiry-sender-phone" className="text-xs font-semibold uppercase text-stone-700 block">Your Phone Number *</label>
                   <input
+                    id="inquiry-sender-phone"
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. 9876543210"
-                    className="w-full p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
+                    className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-stone-500">Your Email Address *</label>
+                <label htmlFor="inquiry-sender-email" className="text-xs font-semibold uppercase text-stone-700 block">Your Email Address *</label>
                 <input
+                  id="inquiry-sender-email"
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. yourname@example.com"
-                  className="w-full p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
+                  className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-stone-500">Message to Owner *</label>
+                <label htmlFor="inquiry-sender-message" className="text-xs font-semibold uppercase text-stone-700 block">Message to Owner *</label>
                 <textarea
+                  id="inquiry-sender-message"
                   rows={3}
                   required
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D]"
+                  className="w-full p-3 rounded-md border border-stone-200 bg-stone-50/50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={submitting || submitSuccess}
-                className={`w-full py-3.5 rounded-2xl font-bold text-xs text-white flex items-center justify-center gap-2 transition-all shadow-xs ${
+                className={`w-full py-3 rounded-md font-bold text-xs text-white flex items-center justify-center gap-2 transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-[#14532D] ${
                   submitSuccess
                     ? 'bg-emerald-700'
                     : 'bg-[#14532D] hover:bg-[#166534] cursor-pointer'
