@@ -163,12 +163,14 @@ export const PropertyCard = ({ property }) => {
           </p>
         </div>
 
-        {/* Monograph Adaptive Specifications Ribbon */}
-        <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-700">
-          <div className="flex items-center gap-2 font-medium">
-            <span>{specs.ribbonText}</span>
+        {/* Adaptive Specifications Ribbon */}
+        {specs.ribbonText ? (
+          <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-700">
+            <div className="flex items-center gap-2 font-medium">
+              <span>{specs.ribbonText}</span>
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {/* Footer Action */}
         <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
@@ -186,7 +188,7 @@ export const PropertyCard = ({ property }) => {
             to={`/properties/${property._id}`}
             className="inline-flex items-center gap-1 text-xs font-bold text-stone-800 hover:text-[#14532D] transition-colors group/link focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs"
           >
-            <span>View Residence</span>
+            <span>View Property</span>
             <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
           </Link>
         </div>

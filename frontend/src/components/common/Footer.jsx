@@ -90,7 +90,7 @@ export const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
-          <p>© {new Date().getFullYear()} HAVEN. Curated Monograph • Edition 2026.</p>
+          <p>© {new Date().getFullYear()} HAVEN. Built for living, not just listing.</p>
           <div className="flex items-center gap-6">
             <Link to="/properties" className="hover:text-stone-300 transition-colors">Catalog</Link>
             <Link to="/favorites" className="hover:text-stone-300 transition-colors">Saved</Link>

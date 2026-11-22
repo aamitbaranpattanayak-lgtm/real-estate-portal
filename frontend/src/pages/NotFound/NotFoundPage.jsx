@@ -8,9 +8,9 @@ export const NotFoundPage = () => {
       <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-lg border border-stone-200 shadow-sm space-y-6">
         <div className="font-serif text-6xl font-bold tracking-tight text-[#14532D]">404</div>
         <div className="space-y-2">
-          <h1 className="font-serif text-2xl font-bold text-stone-900 tracking-tight">Residence Not Found</h1>
+          <h1 className="font-serif text-2xl font-bold text-stone-900 tracking-tight">Property Not Found</h1>
           <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
-            The architectural residence or monograph you are seeking might have been transferred, archived, or is temporarily unavailable.
+            The property you are seeking might have been removed, archived, or is temporarily unavailable.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 pt-2">

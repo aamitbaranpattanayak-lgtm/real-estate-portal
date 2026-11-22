@@ -38,13 +38,13 @@ export const FavoritesPage = () => {
         
         <div className="mb-10 border-b border-stone-200 pb-6">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#14532D] mb-1 block">
-            Saved Residences
+            Saved Properties
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
-            Your Private Monograph Collection
+            Your Saved Properties
           </h1>
           <p className="text-stone-600 text-xs sm:text-sm mt-1">
-            You have <span className="font-bold text-stone-900">{favoriteCount}</span> saved residences in your portfolio
+            You have <span className="font-bold text-stone-900">{favoriteCount}</span> saved properties in your collection
           </p>
         </div>
 

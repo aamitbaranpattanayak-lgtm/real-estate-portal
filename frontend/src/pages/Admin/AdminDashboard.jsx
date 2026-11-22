@@ -697,7 +697,7 @@ export const AdminDashboard = () => {
               <div className="bg-[#14532D] text-white p-6 flex items-center justify-between">
                 <div>
                   <h3 id="admin-property-modal-title" className="text-lg font-bold font-serif">
-                    {editingProperty ? 'Edit Property Monograph' : 'Register New Monograph Residence'}
+                    {editingProperty ? 'Edit Property' : 'Register New Property'}
                   </h3>
                   <p className="text-xs text-emerald-200">Manage comprehensive domain intelligence, dimensions, and verified attributes</p>
                 </div>
@@ -1140,7 +1140,7 @@ export const AdminDashboard = () => {
                   </span>
 
                   <div className="space-y-2 p-4 bg-stone-50 rounded-lg border border-stone-200">
-                    <label htmlFor="admin-prop-image" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">Primary Monograph Image *</label>
+                    <label htmlFor="admin-prop-image" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">Primary Property Image *</label>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                       <div>
@@ -1270,7 +1270,7 @@ export const AdminDashboard = () => {
                       className="w-4 h-4 text-[#14532D] rounded-sm cursor-pointer"
                     />
                     <label htmlFor="featuredToggle" className="text-xs font-bold text-stone-800 cursor-pointer">
-                      Highlight as Featured Property on Homepage Monograph Spread
+                      Highlight as Featured Property on Homepage
                     </label>
                   </div>
                 </div>

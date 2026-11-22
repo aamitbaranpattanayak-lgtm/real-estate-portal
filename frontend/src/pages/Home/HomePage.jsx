@@ -92,7 +92,7 @@ export const HomePage = () => {
               
               <div className="space-y-3">
                 <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#14532D] block">
-                  Curated Monograph • Edition 2026
+                  Curated Real Estate Catalog • 2026
                 </span>
                 
                 <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 leading-[1.1]">
@@ -226,7 +226,7 @@ export const HomePage = () => {
 
             </div>
 
-            {/* RIGHT COLUMN: Framed Architectural Monograph Photograph (5 Cols) */}
+            {/* RIGHT COLUMN: Featured Property Architectural Photograph (5 Cols) */}
             <div className="lg:col-span-5 relative">
               <div className="relative rounded-lg overflow-hidden border border-stone-200 shadow-md bg-stone-100 aspect-[4/5] max-h-[580px] w-full">
                 <img
@@ -235,7 +235,7 @@ export const HomePage = () => {
                   className="w-full h-full object-cover"
                 />
 
-                {/* Subtle Monograph Framing Border */}
+                {/* Subtle Editorial Framing Border */}
                 <div className="absolute inset-0 ring-1 ring-inset ring-black/10 pointer-events-none" />
 
                 {/* Live Property Caption Card */}
@@ -244,7 +244,7 @@ export const HomePage = () => {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
-                          Featured Monograph
+                          Featured Property
                         </span>
                         <h2 className="font-serif text-base font-bold text-stone-900 line-clamp-1 mt-0.5">
                           {leadFeatured.title}
@@ -321,7 +321,7 @@ export const HomePage = () => {
                   />
                   <div className="absolute top-4 left-4 flex gap-2">
                     <span className="bg-[#14532D] text-white text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider">
-                      Lead Monograph
+                      Featured Property
                     </span>
                     <span className="bg-white/95 text-stone-900 text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider border border-stone-200/90">
                       {leadFeatured.purpose === 'sale' ? 'For Sale' : 'For Rent'}
@@ -354,7 +354,7 @@ export const HomePage = () => {
                         );
                         return leadMetrics.pricePerSqFt ? (
                           <p className="text-xs text-stone-500 font-medium">
-                            ₹{leadMetrics.pricePerSqFt.toLocaleString('en-IN')} {leadMetrics.unit} ({leadMetrics.basis})
+                            {leadMetrics.pricePerSqFt.toLocaleString('en-IN')} {leadMetrics.unit} ({leadMetrics.basis})
                           </p>
                         ) : null;
                       })()}
@@ -374,7 +374,7 @@ export const HomePage = () => {
                       to={`/properties/${leadFeatured._id}`}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#14532D] text-white font-bold text-xs hover:bg-[#166534] transition-colors"
                     >
-                      <span>Examine Residence</span>
+                      <span>View Property</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>

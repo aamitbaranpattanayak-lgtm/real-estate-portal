@@ -7,6 +7,7 @@ import {
   calculatePricingMetrics, 
   resolveVerificationBadge,
   formatPropertySpecifications,
+  getDetailedSpecifications,
   capitalize 
 } from '../../utils/formatters';
 import { ContactOwnerModal } from '../../components/property/ContactOwnerModal';
@@ -158,6 +159,7 @@ export const PropertyDetailsPage = () => {
 
   // P2 Adaptive Specifications & RERA Workflow
   const specs = formatPropertySpecifications(property);
+  const detailedSpecs = getDetailedSpecifications(property);
   const verification = resolveVerificationBadge(property.verificationStatus, property.reraNumber);
 
   // Media Gallery Assembly
@@ -236,7 +238,7 @@ export const PropertyDetailsPage = () => {
                     : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
                 }`}
               >
-                Photography Monograph ({galleryImages.length})
+                Photography ({galleryImages.length})
               </button>
 
               {property.floorPlan && (
@@ -250,13 +252,13 @@ export const PropertyDetailsPage = () => {
                   }`}
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  Architectural Floor Plan
+                  Floor Plan
                 </button>
               )}
             </div>
 
             <span className="text-xs text-stone-500 font-medium hidden sm:inline">
-              {viewingFloorPlan ? 'Certified Architectural Floor Layout' : `Showing perspective ${activeMediaIndex + 1} of ${galleryImages.length}`}
+              {viewingFloorPlan ? 'Architectural Floor Layout' : `Showing photo ${activeMediaIndex + 1} of ${galleryImages.length}`}
             </span>
           </div>
 
@@ -274,7 +276,7 @@ export const PropertyDetailsPage = () => {
               <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                 {property.featured && (
                   <span className="bg-[#14532D] text-white text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-xs">
-                    Featured Monograph
+                    Featured
                   </span>
                 )}
                 <span className="bg-[#FBFBF9]/95 text-stone-900 text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider border border-stone-200/90 shadow-xs">
@@ -407,192 +409,109 @@ export const PropertyDetailsPage = () => {
                   ) : null}
                 </div>
               </div>
-
-              {/* Architectural Adaptive Specifications Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-stone-700">
-                {specs.primaryMetrics.map((metric, i) => (
-                  <div key={i} className="p-3.5 rounded-md bg-stone-50 border border-stone-200/70">
-                    <p className="text-xs text-stone-500 font-bold uppercase tracking-wider">{metric.label}</p>
-                    <p className="font-serif text-xl font-bold text-stone-900 mt-1 capitalize">{metric.value}</p>
-                  </div>
-                ))}
-              </div>
             </div>
 
             {/* ========================================================================= */}
-            {/* P2 AREA INTELLIGENCE: CARPET & BUILT-UP BREAKDOWN                         */}
+            {/* SPECIFICATIONS: REFINED NUMERICAL HIERARCHY                               */}
             {/* ========================================================================= */}
-            <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
-              <div className="border-b border-stone-100 pb-3 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
-                    Area Intelligence & Spatial Dimensions
-                  </span>
+            {detailedSpecs.numericalSpecs.length > 0 && (
+              <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-6">
+                <div className="border-b border-stone-100 pb-3 flex items-center justify-between">
                   <h2 className="font-serif text-xl font-bold text-stone-900">
-                    Certified Dimensional Breakdown
+                    Specifications
                   </h2>
-                </div>
-                {spatialEfficiency && (
-                  <span className="bg-emerald-50 text-[#14532D] text-xs font-bold px-3 py-1 rounded-full border border-emerald-200" title="Carpet Area to Super Built-up Area Ratio">
-                    {spatialEfficiency}% Space Efficiency
-                  </span>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                {/* Carpet Area */}
-                <div className="p-4 rounded-md bg-emerald-50/50 border border-emerald-100 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#14532D]">Carpet Area</span>
-                    <span className="text-[10px] bg-[#14532D] text-white px-1.5 py-0.2 rounded-xs font-bold uppercase">RERA Primary</span>
-                  </div>
-                  <p className="font-serif text-2xl font-bold text-stone-900">
-                    {property.carpetArea ? `${property.carpetArea.toLocaleString('en-IN')} sq.ft` : 'Not Disclosed'}
-                  </p>
-                  <p className="text-[11px] text-stone-500 leading-tight">
-                    Actual usable net floor area enclosed within internal walls.
-                  </p>
-                </div>
-
-                {/* Built-Up Area */}
-                <div className="p-4 rounded-md bg-stone-50 border border-stone-200/80 space-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-stone-700">Built-Up Area</span>
-                  <p className="font-serif text-2xl font-bold text-stone-900">
-                    {property.builtUpArea ? `${property.builtUpArea.toLocaleString('en-IN')} sq.ft` : 'Not Disclosed'}
-                  </p>
-                  <p className="text-[11px] text-stone-500 leading-tight">
-                    Carpet area plus external perimeter walls and private balconies.
-                  </p>
-                </div>
-
-                {/* Super Built-Up / Total Area */}
-                <div className="p-4 rounded-md bg-stone-50 border border-stone-200/80 space-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-stone-700">Super Built-Up Area</span>
-                  <p className="font-serif text-2xl font-bold text-stone-900">
-                    {(property.superBuiltUpArea || property.area)?.toLocaleString('en-IN')} sq.ft
-                  </p>
-                  <p className="text-[11px] text-stone-500 leading-tight">
-                    Total area including proportional common lobbies and elevator shafts.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* ========================================================================= */}
-            {/* P2 ARCHITECTURAL SPECIFICATIONS TABLE                                     */}
-            {/* ========================================================================= */}
-            <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
-              <div className="border-b border-stone-100 pb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
-                  Property Attributes
-                </span>
-                <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Architectural Specifications
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 pt-2 text-xs">
-                <div className="flex items-center justify-between py-2 border-b border-stone-100">
-                  <span className="text-stone-500 font-medium">Floor Position</span>
-                  <span className="font-bold text-stone-900">
-                    {property.floorNumber !== null && property.floorNumber !== undefined
-                      ? property.floorNumber === 0 
-                        ? 'Ground Floor' 
-                        : `Floor ${property.floorNumber}${property.totalFloors ? ` of ${property.totalFloors}` : ''}`
-                      : 'Independent / Unspecified'}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between py-2 border-b border-stone-100">
-                  <span className="text-stone-500 font-medium">Furnishing Status</span>
-                  <span className="font-bold text-stone-900 capitalize">
-                    {property.furnishing ? property.furnishing.replace('-', ' ') : 'Unspecified'}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between py-2 border-b border-stone-100">
-                  <span className="text-stone-500 font-medium">Orientation / Facing</span>
-                  <span className="font-bold text-stone-900 capitalize">
-                    {property.facing ? `${property.facing} Facing` : 'Unspecified'}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between py-2 border-b border-stone-100">
-                  <span className="text-stone-500 font-medium">Parking Bays</span>
-                  <span className="font-bold text-stone-900">
-                    {property.parkingSpaces !== null && property.parkingSpaces !== undefined
-                      ? `${property.parkingSpaces} Dedicated Bays`
-                      : 'Common Parking'}
-                  </span>
-                </div>
-
-                {!specs.isCommercial && (
-                  <div className="flex items-center justify-between py-2 border-b border-stone-100">
-                    <span className="text-stone-500 font-medium">Balconies</span>
-                    <span className="font-bold text-stone-900">
-                      {property.balconies !== null && property.balconies !== undefined
-                        ? `${property.balconies} Private Balconies`
-                        : 'Unspecified'}
+                  {spatialEfficiency && (
+                    <span
+                      className="bg-emerald-50 text-[#14532D] text-xs font-bold px-3 py-1 rounded-full border border-emerald-200"
+                      title="Carpet Area to Super Built-up Area Ratio"
+                    >
+                      {spatialEfficiency}% Space Efficiency
                     </span>
+                  )}
+                </div>
+
+                {/* Primary Numerical Metrics Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {detailedSpecs.numericalSpecs.map((spec, i) => (
+                    <div
+                      key={i}
+                      className="p-4 rounded-md bg-stone-50 border border-stone-200/80 flex flex-col justify-between"
+                    >
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+                          {spec.value}
+                        </span>
+                        {spec.unit && (
+                          <span className="text-xs text-stone-500 font-semibold">{spec.unit}</span>
+                        )}
+                      </div>
+                      <div className="mt-2 flex items-center justify-between gap-1">
+                        <span className="text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                          {spec.label}
+                        </span>
+                        {spec.highlight && (
+                          <span className="text-[10px] bg-[#14532D] text-white px-1.5 py-0.5 rounded-xs font-bold uppercase tracking-wider">
+                            {spec.highlight}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Qualitative Specifications (Only rendered when present) */}
+                {detailedSpecs.qualitativeSpecs.length > 0 && (
+                  <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center gap-2.5 text-xs">
+                    {detailedSpecs.qualitativeSpecs.map((item, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1.5 rounded-md bg-stone-100 text-stone-700 font-medium capitalize border border-stone-200/60"
+                      >
+                        <strong className="text-stone-900 font-semibold">{item.label}:</strong> {item.value}
+                      </span>
+                    ))}
                   </div>
                 )}
-
-                <div className="flex items-center justify-between py-2 border-b border-stone-100">
-                  <span className="text-stone-500 font-medium">Transaction Type</span>
-                  <span className="font-bold text-stone-900 uppercase">
-                    {property.purpose === 'sale' ? 'Outright Sale' : 'Monthly Lease'}
-                  </span>
-                </div>
               </div>
-            </div>
+            )}
 
-            {/* Architectural Monograph Description */}
-            <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
-              <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#14532D]">
-                  Monograph Statement
-                </span>
-                <span className="text-stone-300">•</span>
-                <h2 className="font-serif text-xl font-bold text-stone-900">
-                  About this Residence
-                </h2>
-              </div>
-              <p className="text-stone-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-normal">
-                {property.description}
-              </p>
-            </div>
-
-            {/* Authentic Amenities Grid */}
+            {/* About the Residence */}
             <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
               <div className="border-b border-stone-100 pb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
-                  Documented Amenities
-                </span>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Residence Features & Specifications
+                  About the Residence
+                </h2>
+              </div>
+              <div className="text-stone-700 text-sm sm:text-base leading-relaxed max-w-prose space-y-3 font-normal whitespace-pre-line">
+                {property.description}
+              </div>
+            </div>
+
+            {/* Amenities */}
+            <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
+              <div className="border-b border-stone-100 pb-3">
+                <h2 className="font-serif text-xl font-bold text-stone-900">
+                  Amenities
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                {(property.amenities && property.amenities.length > 0
-                  ? property.amenities
-                  : [
-                      '24/7 Security Personnel',
-                      '100% Power Backup',
-                      'Covered Car Parking',
-                      'Modular Fitted Kitchen',
-                      'High-Speed Elevators',
-                      'Clubhouse & Fitness Studio',
-                      'Swimming Pool Access',
-                      'Vastu Compliant Layout',
-                    ]
-                ).map((feature, i) => (
-                  <div key={i} className="flex items-center gap-2.5 p-3 rounded-md bg-stone-50 border border-stone-100 text-xs font-semibold text-stone-800">
-                    <Check className="w-4 h-4 text-[#14532D] flex-shrink-0" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
-              </div>
+              {property.amenities && property.amenities.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {property.amenities.map((feature, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2.5 p-3 rounded-md bg-stone-50 border border-stone-100 text-xs sm:text-sm font-medium text-stone-800"
+                    >
+                      <Check className="w-4 h-4 text-[#14532D] flex-shrink-0" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-stone-500 text-xs sm:text-sm italic py-2">
+                  No specific amenities listed for this property.
+                </p>
+              )}
             </div>
 
             {/* ========================================================================= */}
@@ -601,9 +520,6 @@ export const PropertyDetailsPage = () => {
             <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
               <div className="border-b border-stone-100 pb-3 flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
-                    Regulatory Compliance
-                  </span>
                   <h2 className="font-serif text-xl font-bold text-stone-900">
                     RERA & Title Verification Details
                   </h2>
@@ -680,7 +596,7 @@ export const PropertyDetailsPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#14532D]" />
-                  <span>Documented spatial measurements</span>
+                  <span>Verified spatial measurements</span>
                 </div>
               </div>
 
@@ -690,16 +606,13 @@ export const PropertyDetailsPage = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* SIMILAR RESIDENCES IN SAME REGION                                        */}
+        {/* SIMILAR PROPERTIES IN SAME REGION                                        */}
         {/* ========================================================================= */}
         {similarProperties.length > 0 && (
           <section className="mt-24 pt-16 border-t border-stone-200">
             <div className="mb-8">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#14532D] block">
-                Regional Monograph
-              </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-1">
-                Similar Residences in {property.city}
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+                Similar Properties in {property.city}
               </h2>
             </div>
             

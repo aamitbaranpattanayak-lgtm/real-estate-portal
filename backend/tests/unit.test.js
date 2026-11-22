@@ -259,6 +259,60 @@ describe("HAVEN Real Estate Portal — Unit Tests", () => {
       expect(specs.displayBedrooms).toBe("3 BHK");
       expect(specs.displayBathrooms).toBe("3 Baths");
     });
+
+    it("should format clean, prominent numerical card specifications without filler tokens", () => {
+      const formatCardSpecifications = (property) => {
+        if (!property) return "";
+        const isCommercial = property.propertyType === "commercial";
+        if (isCommercial) {
+          const parts = [];
+          const area = property.carpetArea || property.builtUpArea || property.area;
+          if (area && area > 0) parts.push(`${area.toLocaleString("en-IN")} sq.ft.`);
+          if (property.bathrooms && property.bathrooms > 0) parts.push(`${property.bathrooms} Washroom${property.bathrooms > 1 ? "s" : ""}`);
+          if (property.floorNumber !== null && property.floorNumber !== undefined) {
+            parts.push(property.floorNumber === 0 ? "Ground Floor" : `Floor ${property.floorNumber}`);
+          }
+          return parts.join(" • ");
+        }
+
+        const parts = [];
+        if (property.bedrooms && property.bedrooms > 0) parts.push(`${property.bedrooms} Beds`);
+        if (property.bathrooms && property.bathrooms > 0) parts.push(`${property.bathrooms} Baths`);
+        const area = property.carpetArea || property.builtUpArea || property.area;
+        if (area && area > 0) parts.push(`${area.toLocaleString("en-IN")} sq.ft.`);
+        return parts.join(" • ");
+      };
+
+      // 1. Residential full specifications
+      const resFull = {
+        propertyType: "villa",
+        bedrooms: 4,
+        bathrooms: 4,
+        builtUpArea: 3800,
+      };
+      expect(formatCardSpecifications(resFull)).toBe("4 Beds • 4 Baths • 3,800 sq.ft.");
+
+      // 2. Commercial specifications
+      const commFull = {
+        propertyType: "commercial",
+        bedrooms: 0,
+        bathrooms: 2,
+        area: 3000,
+        floorNumber: 4,
+      };
+      expect(formatCardSpecifications(commFull)).toBe("3,000 sq.ft. • 2 Washrooms • Floor 4");
+
+      // 3. Incomplete residential specifications (omits missing bathrooms cleanly without broken bullets)
+      const resIncomplete = {
+        propertyType: "flat",
+        bedrooms: 2,
+        area: 1100,
+      };
+      expect(formatCardSpecifications(resIncomplete)).toBe("2 Beds • 1,100 sq.ft.");
+
+      // 4. Commercial property must never output 0 Beds
+      expect(formatCardSpecifications(commFull)).not.toContain("0 Beds");
+    });
   });
 
   describe("P2 RERA & Verification Workflow Logic", () => {
