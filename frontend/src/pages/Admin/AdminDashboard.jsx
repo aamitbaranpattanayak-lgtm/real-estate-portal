@@ -11,7 +11,6 @@ import {
   Eye, 
   Search, 
   Sparkles, 
-  DollarSign, 
   TrendingUp, 
   X, 
   AlertTriangle,
@@ -400,7 +399,7 @@ export const AdminDashboard = () => {
           <div className="bg-white p-6 rounded-lg border border-stone-200 shadow-xs space-y-2">
             <div className="flex items-center justify-between text-stone-500">
               <span className="text-xs font-bold uppercase tracking-wider text-stone-600">Portfolio Valuation</span>
-              <DollarSign className="w-4 h-4 text-[#14532D]" />
+              <TrendingUp className="w-4 h-4 text-[#14532D]" />
             </div>
             <p className="text-2xl font-bold text-stone-900">{formatPrice(totalValue)}</p>
             <p className="text-xs text-stone-500">Total catalog value</p>

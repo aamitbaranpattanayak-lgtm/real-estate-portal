@@ -104,6 +104,32 @@ export const PropertyDetailsPage = () => {
     }
   }, [id]);
 
+  // Media Gallery Assembly (Declared before any early returns to satisfy React Rules of Hooks)
+  const galleryImages = [
+    property?.image,
+    ...(Array.isArray(property?.images) ? property.images : [])
+  ].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
+
+  // Keyboard navigation for Lightbox modal (Hook called unconditionally)
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setLightboxOpen(false);
+      } else if (e.key === 'ArrowLeft') {
+        if (!viewingFloorPlan && galleryImages.length > 1) {
+          setActiveMediaIndex((prev) => (prev > 0 ? prev - 1 : galleryImages.length - 1));
+        }
+      } else if (e.key === 'ArrowRight') {
+        if (!viewingFloorPlan && galleryImages.length > 1) {
+          setActiveMediaIndex((prev) => (prev < galleryImages.length - 1 ? prev + 1 : 0));
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, viewingFloorPlan, galleryImages.length]);
+
   const fav = isFavorite(property?._id);
 
   const handleFavoriteToggle = async () => {
@@ -164,32 +190,6 @@ export const PropertyDetailsPage = () => {
   const specs = formatPropertySpecifications(property);
   const detailedSpecs = getDetailedSpecifications(property);
   const verification = resolveVerificationBadge(property.verificationStatus, property.reraNumber);
-
-  // Media Gallery Assembly
-  const galleryImages = [
-    property?.image,
-    ...(Array.isArray(property?.images) ? property.images : [])
-  ].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
-
-  // Keyboard navigation for Lightbox modal
-  useEffect(() => {
-    if (!lightboxOpen) return;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setLightboxOpen(false);
-      } else if (e.key === 'ArrowLeft') {
-        if (!viewingFloorPlan && galleryImages.length > 1) {
-          setActiveMediaIndex((prev) => (prev > 0 ? prev - 1 : galleryImages.length - 1));
-        }
-      } else if (e.key === 'ArrowRight') {
-        if (!viewingFloorPlan && galleryImages.length > 1) {
-          setActiveMediaIndex((prev) => (prev < galleryImages.length - 1 ? prev + 1 : 0));
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxOpen, viewingFloorPlan, galleryImages.length]);
 
   const currentDisplayImage = viewingFloorPlan
     ? property.floorPlan || DEFAULT_IMAGE
