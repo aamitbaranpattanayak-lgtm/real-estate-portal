@@ -313,7 +313,7 @@ npm test
 
 ### Test Suite Execution Summary:
 - **Total Test Suites:** 2 passed, 2 total (`api.test.js`, `unit.test.js`).
-- **Total Tests:** 34 passed, 34 total (100% pass rate).
+- **Total Tests:** 47 passed, 47 total (100% pass rate).
 - **Execution Architecture:**
   - `api.test.js` tests the Express application directly via Supertest without binding to live host ports or hanging on database timeouts.
   - Covers system health, base route 404s, registration validation, login validation, token decoding, property query bounding, malformed ObjectId rejections, inquiry validation, file upload authentication, and favorites security.
@@ -422,7 +422,7 @@ Visit **`http://localhost:3000`** in your browser.
    - Return to the homepage to confirm that the new property appears in the live catalog!
 8. **Automated Testing & Security Proof:**
    - Open a terminal and run `npm test` inside `backend`.
-   - Show the examiner the **45 passed tests (100% pass rate)** verifying security, auth, validation, ReDoS prevention, area calculations, pricing intelligence, and specification adaptation.
+   - Show the examiner the **47 passed tests (100% pass rate)** verifying security, auth, validation, ReDoS prevention, area calculations, pricing intelligence, and specification adaptation.
 
 ---
 
