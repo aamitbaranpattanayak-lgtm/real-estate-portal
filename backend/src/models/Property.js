@@ -18,8 +18,8 @@ const propertySchema = new mongoose.Schema(
 
     purpose: {
       type: String,
-      enum: ["sale", "rent"],
-      required: [true, "Property purpose (sale or rent) is required"],
+      enum: ["sale", "rent", "lease"],
+      required: [true, "Property purpose (sale, rent, or lease) is required"],
     },
 
     propertyType: {
@@ -258,6 +258,7 @@ const propertySchema = new mongoose.Schema(
 
 // Compound indexes for high-speed multi-parameter public listing queries
 propertySchema.index({ city: 1, purpose: 1, propertyType: 1, price: 1 });
+propertySchema.index({ purpose: 1, city: 1, price: 1 });
 propertySchema.index({ featured: 1, createdAt: -1 });
 propertySchema.index({ listedBy: 1, createdAt: -1 });
 propertySchema.index({ status: 1, createdAt: -1 });

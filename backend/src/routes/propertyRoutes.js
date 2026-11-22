@@ -4,6 +4,7 @@ const {
   createProperty,
   getProperties,
   getProperty,
+  getFilterOptions,
   updateProperty,
   deleteProperty,
   contactOwner,
@@ -15,6 +16,7 @@ const { admin } = require("../middleware/adminMiddleware");
 const router = express.Router();
 
 // Public Routes
+router.get("/filter-options", getFilterOptions);
 router.get("/", getProperties);
 
 router.get("/:id/contact", contactOwner);

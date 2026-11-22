@@ -60,7 +60,7 @@ const validatePropertyPayload = (body) => {
     amenities,
   } = body;
 
-  const validPurposes = ["sale", "rent"];
+  const validPurposes = ["sale", "rent", "lease"];
   const validTypes = [
     "flat",
     "apartment",
@@ -91,7 +91,7 @@ const validatePropertyPayload = (body) => {
     throw new Error("Description is required");
   }
   if (!purpose || !validPurposes.includes(purpose)) {
-    throw new Error("Purpose must be either 'sale' or 'rent'");
+    throw new Error("Purpose must be 'sale', 'rent', or 'lease'");
   }
   if (!propertyType || !validTypes.includes(propertyType)) {
     throw new Error("Valid propertyType is required");
@@ -336,8 +336,16 @@ const getProperties = asyncHandler(async (req, res) => {
     }
   }
 
-  if (typeof purpose === "string" && purpose.trim()) {
-    filter.purpose = purpose.trim();
+  const rawPurpose = req.query.listingType || req.query.purpose || purpose;
+  if (typeof rawPurpose === "string" && rawPurpose.trim()) {
+    const cleanPurpose = rawPurpose.trim().toLowerCase();
+    if (cleanPurpose === "buy") {
+      filter.purpose = "sale";
+    } else if (cleanPurpose === "sale" || cleanPurpose === "rent" || cleanPurpose === "lease") {
+      filter.purpose = cleanPurpose;
+    } else {
+      filter.purpose = cleanPurpose;
+    }
   }
 
   if (typeof propertyType === "string" && propertyType.trim()) {
@@ -533,10 +541,190 @@ const contactOwner = asyncHandler(async (req, res) => {
   });
 });
 
+// Candidate price range definitions per listing type
+const PRICE_BRACKETS = {
+  sale: [
+    { key: "0-5000000", minPrice: null, maxPrice: 5000000, label: "Under ₹50 Lakh" },
+    { key: "5000000-10000000", minPrice: 5000000, maxPrice: 10000000, label: "₹50 Lakh – ₹1 Crore" },
+    { key: "10000000-20000000", minPrice: 10000000, maxPrice: 20000000, label: "₹1 Crore – ₹2 Crore" },
+    { key: "20000000-50000000", minPrice: 20000000, maxPrice: 50000000, label: "₹2 Crore – ₹5 Crore" },
+    { key: "50000000-above", minPrice: 50000000, maxPrice: null, label: "Above ₹5 Crore" },
+  ],
+  rent: [
+    { key: "0-25000", minPrice: null, maxPrice: 25000, label: "Under ₹25,000/mo" },
+    { key: "25000-50000", minPrice: 25000, maxPrice: 50000, label: "₹25,000 – ₹50,000/mo" },
+    { key: "50000-100000", minPrice: 50000, maxPrice: 100000, label: "₹50,000 – ₹1,00,000/mo" },
+    { key: "100000-200000", minPrice: 100000, maxPrice: 200000, label: "₹1,00,000 – ₹2,00,000/mo" },
+    { key: "200000-above", minPrice: 200000, maxPrice: null, label: "Above ₹2,00,000/mo" },
+  ],
+  lease: [
+    { key: "0-25000", minPrice: null, maxPrice: 25000, label: "Under ₹25,000/mo" },
+    { key: "25000-50000", minPrice: 25000, maxPrice: 50000, label: "₹25,000 – ₹50,000/mo" },
+    { key: "50000-100000", minPrice: 50000, maxPrice: 100000, label: "₹50,000 – ₹1,00,000/mo" },
+    { key: "100000-200000", minPrice: 100000, maxPrice: 200000, label: "₹1,00,000 – ₹2,00,000/mo" },
+    { key: "200000-above", minPrice: 200000, maxPrice: null, label: "Above ₹2,00,000/mo" },
+  ],
+  all: [
+    { key: "0-25000", minPrice: null, maxPrice: 25000, label: "Under ₹25,000/mo" },
+    { key: "25000-50000", minPrice: 25000, maxPrice: 50000, label: "₹25,000 – ₹50,000/mo" },
+    { key: "50000-100000", minPrice: 50000, maxPrice: 100000, label: "₹50,000 – ₹1,00,000/mo" },
+    { key: "100000-5000000", minPrice: 100000, maxPrice: 5000000, label: "₹1 Lakh – ₹50 Lakh" },
+    { key: "5000000-10000000", minPrice: 5000000, maxPrice: 10000000, label: "₹50 Lakh – ₹1 Crore" },
+    { key: "10000000-20000000", minPrice: 10000000, maxPrice: 20000000, label: "₹1 Crore – ₹2 Crore" },
+    { key: "20000000-50000000", minPrice: 20000000, maxPrice: 50000000, label: "₹2 Crore – ₹5 Crore" },
+    { key: "50000000-above", minPrice: 50000000, maxPrice: null, label: "Above ₹5 Crore" },
+  ],
+};
+
+// GET /api/properties/filter-options
+// Dynamically extracts available cities, price ranges, and property types from real DB records
+const getFilterOptions = asyncHandler(async (req, res) => {
+  const matchFilter = {};
+  let purposeKey = "all";
+
+  const rawListingType = req.query.listingType || req.query.purpose;
+  if (typeof rawListingType === "string" && rawListingType.trim()) {
+    const norm = rawListingType.trim().toLowerCase();
+    if (norm === "buy" || norm === "sale") {
+      matchFilter.purpose = "sale";
+      purposeKey = "sale";
+    } else if (norm === "rent") {
+      matchFilter.purpose = "rent";
+      purposeKey = "rent";
+    } else if (norm === "lease") {
+      matchFilter.purpose = "lease";
+      purposeKey = "lease";
+    }
+  }
+
+  if (typeof req.query.status === "string" && req.query.status.trim()) {
+    matchFilter.status = req.query.status.trim();
+  }
+
+  const [aggregateResult] = await Property.aggregate([
+    { $match: matchFilter },
+    {
+      $facet: {
+        total: [{ $count: "count" }],
+        cities: [
+          {
+            $match: {
+              city: { $exists: true, $type: "string", $ne: "" },
+            },
+          },
+          {
+            $project: {
+              trimmedCity: { $trim: { input: "$city" } },
+            },
+          },
+          {
+            $group: {
+              _id: "$trimmedCity",
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ],
+        prices: [
+          {
+            $match: {
+              price: { $exists: true, $type: "number", $gte: 0 },
+            },
+          },
+          {
+            $project: {
+              price: 1,
+            },
+          },
+        ],
+        propertyTypes: [
+          {
+            $match: {
+              propertyType: { $exists: true, $type: "string", $ne: "" },
+            },
+          },
+          {
+            $group: {
+              _id: "$propertyType",
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ],
+      },
+    },
+  ]);
+
+  const totalProperties = aggregateResult?.total?.[0]?.count || 0;
+  const cities = (aggregateResult?.cities || []).map((c) => ({
+    name: c._id,
+    count: c.count,
+  }));
+  const propertyTypes = (aggregateResult?.propertyTypes || []).map((t) => ({
+    name: t._id,
+    count: t.count,
+  }));
+
+  const rawPrices = (aggregateResult?.prices || [])
+    .map((p) => p.price)
+    .filter((p) => typeof p === "number" && !isNaN(p) && p >= 0);
+
+  const brackets = PRICE_BRACKETS[purposeKey] || PRICE_BRACKETS.all;
+  const priceRanges = [];
+
+  for (const bracket of brackets) {
+    const count = rawPrices.filter((p) => {
+      if (bracket.minPrice !== null && bracket.maxPrice !== null) {
+        return p >= bracket.minPrice && p <= bracket.maxPrice;
+      }
+      if (bracket.minPrice === null && bracket.maxPrice !== null) {
+        return p <= bracket.maxPrice;
+      }
+      if (bracket.minPrice !== null && bracket.maxPrice === null) {
+        return p >= bracket.minPrice;
+      }
+      return true;
+    }).length;
+
+    // Strict requirement: Only show price ranges containing at least one matching property
+    if (count > 0) {
+      priceRanges.push({
+        key: bracket.key,
+        minPrice: bracket.minPrice,
+        maxPrice: bracket.maxPrice,
+        label: bracket.label,
+        count,
+      });
+    }
+  }
+
+  const priceStats =
+    rawPrices.length > 0
+      ? {
+          min: Math.min(...rawPrices),
+          max: Math.max(...rawPrices),
+          avg: Math.round(rawPrices.reduce((a, b) => a + b, 0) / rawPrices.length),
+        }
+      : null;
+
+  res.status(200).json({
+    success: true,
+    data: {
+      listingType: purposeKey,
+      totalProperties,
+      cities,
+      priceRanges,
+      propertyTypes,
+      priceStats,
+    },
+  });
+});
+
 module.exports = {
   createProperty,
   getProperties,
   getProperty,
+  getFilterOptions,
   updateProperty,
   deleteProperty,
   contactOwner,
