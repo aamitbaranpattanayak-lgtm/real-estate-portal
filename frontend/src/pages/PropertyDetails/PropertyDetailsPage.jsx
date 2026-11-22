@@ -33,7 +33,10 @@ import {
   Car,
   FileText,
   AlertCircle,
-  Building
+  Building,
+  Printer,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -164,9 +167,29 @@ export const PropertyDetailsPage = () => {
 
   // Media Gallery Assembly
   const galleryImages = [
-    property.image,
-    ...(Array.isArray(property.images) ? property.images : [])
+    property?.image,
+    ...(Array.isArray(property?.images) ? property.images : [])
   ].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
+
+  // Keyboard navigation for Lightbox modal
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setLightboxOpen(false);
+      } else if (e.key === 'ArrowLeft') {
+        if (!viewingFloorPlan && galleryImages.length > 1) {
+          setActiveMediaIndex((prev) => (prev > 0 ? prev - 1 : galleryImages.length - 1));
+        }
+      } else if (e.key === 'ArrowRight') {
+        if (!viewingFloorPlan && galleryImages.length > 1) {
+          setActiveMediaIndex((prev) => (prev < galleryImages.length - 1 ? prev + 1 : 0));
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, viewingFloorPlan, galleryImages.length]);
 
   const currentDisplayImage = viewingFloorPlan
     ? property.floorPlan || DEFAULT_IMAGE
@@ -182,8 +205,22 @@ export const PropertyDetailsPage = () => {
     <div className="min-h-screen bg-[#FBFBF9] pt-28 pb-20 text-stone-900">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
+        {/* Printable Monograph Letterhead (Visible ONLY in print / PDF generation) */}
+        <div className="hidden print:block mb-8 pb-4 border-b-2 border-stone-900">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-serif text-2xl font-black tracking-widest uppercase">HAVEN</span>
+              <span className="block text-[10px] uppercase tracking-wider text-stone-600">Architectural Real Estate Monograph</span>
+            </div>
+            <div className="text-right text-[10px] text-stone-500">
+              <div>Printed: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+              <div>Reference ID: {property._id}</div>
+            </div>
+          </div>
+        </div>
+
         {/* Navigation Breadcrumb & Actions Bar */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 pb-4">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 pb-4 no-print">
           <div className="flex items-center gap-2 text-xs font-semibold text-stone-600">
             <Link
               to="/properties"
@@ -198,6 +235,16 @@ export const PropertyDetailsPage = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-white border border-stone-200 text-stone-700 text-xs font-bold shadow-xs hover:bg-stone-50 focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
+              aria-label="Print or save architectural monograph specification"
+              title="Print / Save Monograph PDF"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Monograph PDF</span>
+            </button>
             <button
               onClick={handleShare}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-white border border-stone-200 text-stone-700 text-xs font-bold shadow-xs hover:bg-stone-50 focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
@@ -227,7 +274,7 @@ export const PropertyDetailsPage = () => {
         <div className="space-y-3 mb-10">
           
           {/* Gallery View Controls (Media Switcher) */}
-          <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+          <div className="flex items-center justify-between border-b border-stone-200 pb-2 no-print">
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -265,8 +312,8 @@ export const PropertyDetailsPage = () => {
           {/* Main Large Viewport */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             
-            {/* Primary Viewport (8 cols) */}
-            <div className="lg:col-span-8 relative aspect-[16/10] rounded-lg overflow-hidden border border-stone-200 shadow-sm bg-stone-100 group">
+            {/* Primary Viewport (8 cols in screen, full width in print) */}
+            <div className="lg:col-span-8 print:col-span-12 relative aspect-[16/10] rounded-lg overflow-hidden border border-stone-200 shadow-sm bg-stone-100 group">
               <img
                 src={currentDisplayImage}
                 alt={viewingFloorPlan ? `${property.title} Floor Plan` : property.title}
@@ -301,7 +348,7 @@ export const PropertyDetailsPage = () => {
             </div>
 
             {/* Thumbnail Strip / Secondary Views (4 cols) */}
-            <div className="lg:col-span-4 flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
+            <div className="lg:col-span-4 flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 no-print">
               {galleryImages.map((imgUrl, idx) => (
                 <button
                   key={idx}
@@ -609,7 +656,7 @@ export const PropertyDetailsPage = () => {
         {/* SIMILAR PROPERTIES IN SAME REGION                                        */}
         {/* ========================================================================= */}
         {similarProperties.length > 0 && (
-          <section className="mt-24 pt-16 border-t border-stone-200">
+          <section className="mt-24 pt-16 border-t border-stone-200 no-print print:hidden">
             <div className="mb-8">
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
                 Similar Properties in {property.city}
@@ -638,24 +685,62 @@ export const PropertyDetailsPage = () => {
       {/* Accessible Fullscreen Lightbox Modal */}
       <AnimatePresence>
         {lightboxOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/90 backdrop-blur-md" role="dialog" aria-modal="true" aria-label="Expanded Image View">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/90 backdrop-blur-md" 
+            role="dialog" 
+            aria-modal="true" 
+            aria-label="Expanded Image View"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setLightboxOpen(false);
+            }}
+          >
             <div className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center">
               <button
                 type="button"
                 onClick={() => setLightboxOpen(false)}
                 className="absolute -top-12 right-0 p-2 text-white hover:text-stone-300 rounded-md focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
-                aria-label="Close fullscreen view"
+                aria-label="Close fullscreen view (Press Escape)"
               >
                 <X className="w-6 h-6" />
               </button>
+
+              {/* Prev / Next Chevrons (when photography mode with multiple images) */}
+              {!viewingFloorPlan && galleryImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setActiveMediaIndex((prev) => (prev > 0 ? prev - 1 : galleryImages.length - 1))}
+                    className="absolute left-2 sm:-left-12 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-stone-900/80 hover:bg-stone-900 text-white backdrop-blur-xs transition-all focus-visible:ring-2 focus-visible:ring-white cursor-pointer z-10"
+                    aria-label="Previous photograph (Left Arrow)"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveMediaIndex((prev) => (prev < galleryImages.length - 1 ? prev + 1 : 0))}
+                    className="absolute right-2 sm:-right-12 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-stone-900/80 hover:bg-stone-900 text-white backdrop-blur-xs transition-all focus-visible:ring-2 focus-visible:ring-white cursor-pointer z-10"
+                    aria-label="Next photograph (Right Arrow)"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+
               <img
                 src={currentDisplayImage}
                 alt={viewingFloorPlan ? `${property.title} Floor Plan` : property.title}
-                className="w-full max-h-[80vh] object-contain rounded-md"
+                className="w-full max-h-[80vh] object-contain rounded-md select-none"
               />
-              <p className="text-white text-xs mt-3 font-semibold font-serif">
-                {property.title} • {property.city} {viewingFloorPlan ? '(Floor Plan Layout)' : ''}
-              </p>
+              <div className="flex items-center justify-between w-full mt-3 text-white text-xs font-semibold px-2">
+                <span className="font-serif truncate max-w-md">
+                  {property.title} • {property.city} {viewingFloorPlan ? '(Floor Plan Layout)' : ''}
+                </span>
+                {!viewingFloorPlan && galleryImages.length > 1 && (
+                  <span className="text-stone-300 font-mono text-[11px] bg-stone-900/60 px-2 py-0.5 rounded-xs">
+                    {activeMediaIndex + 1} / {galleryImages.length}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         )}

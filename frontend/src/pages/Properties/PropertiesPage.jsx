@@ -85,6 +85,18 @@ export const PropertiesPage = () => {
     fetchFilteredProperties();
   }, [fetchFilteredProperties]);
 
+  // Keyboard dismissal for mobile filter drawer
+  useEffect(() => {
+    if (!mobileFilterOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setMobileFilterOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileFilterOpen]);
+
   // Push filter state to URL with validation guard
   const applyFilters = () => {
     const params = new URLSearchParams();
@@ -458,7 +470,15 @@ export const PropertiesPage = () => {
       {/* ========================================================================= */}
       <AnimatePresence>
         {mobileFilterOpen && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-950/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="mobile-filter-title">
+          <div 
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-950/60 backdrop-blur-sm" 
+            role="dialog" 
+            aria-modal="true" 
+            aria-labelledby="mobile-filter-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setMobileFilterOpen(false);
+            }}
+          >
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}

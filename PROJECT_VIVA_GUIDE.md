@@ -175,6 +175,8 @@ erDiagram
 1. **Compound Indexes:**
    - `{ city: 1, purpose: 1, propertyType: 1, price: 1 }` enables sub-millisecond public catalog filtering.
    - `{ featured: 1, createdAt: -1 }` accelerates homepage curated highlights.
+   - `{ verificationStatus: 1, createdAt: -1 }` accelerates verified property queries without in-memory sort stages (P3).
+   - `{ furnishing: 1, createdAt: -1 }` accelerates furnishing filter queries (P3).
    - `{ property: 1, createdAt: -1 }` and `{ status: 1, createdAt: -1 }` on `Inquiry` accelerate admin lead lookups.
 2. **Full-Text Index:**
    - Text index on `{ title: 10, city: 5, address: 5, description: 1 }` for search indexing.
@@ -420,9 +422,15 @@ Visit **`http://localhost:3000`** in your browser.
    - Demonstrate local image file upload with real-time thumbnail preview.
    - Fill in details, toggle `"Highlight as Featured"`, and save.
    - Return to the homepage to confirm that the new property appears in the live catalog!
-8. **Automated Testing & Security Proof:**
+### 8. Automated Testing & Security Proof:
    - Open a terminal and run `npm test` inside `backend`.
-   - Show the examiner the **47 passed tests (100% pass rate)** verifying security, auth, validation, ReDoS prevention, area calculations, pricing intelligence, and specification adaptation.
+   - Show the examiner the **48 passed tests (100% pass rate)** verifying security, auth, validation, ReDoS prevention, area calculations, pricing intelligence, and specification adaptation.
+9. **Architectural Monograph Lookbook Export & Print Styles (P3):**
+   - On any property detail page, click the **"Monograph PDF"** button.
+   - Show the examiner how `@media print` cleanly strips away UI navigation chrome, search forms, and buttons, rendering a publication-ready vector monograph tear-sheet formatted for A4 print and PDF export with a HAVEN architectural masthead.
+10. **Accessibility & Keyboard Navigation (P3):**
+   - Open the image Lightbox and navigate with the keyboard's Left and Right Arrow keys. Press Escape to close.
+   - Demonstrate that all dialogs and drawers (Contact Modal, Admin Editor, Delete Dialog, and Mobile Filters) support backdrop dismissal and Escape key closing without memory leaks.
 
 ---
 

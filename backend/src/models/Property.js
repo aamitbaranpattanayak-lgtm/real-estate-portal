@@ -261,6 +261,8 @@ propertySchema.index({ city: 1, purpose: 1, propertyType: 1, price: 1 });
 propertySchema.index({ featured: 1, createdAt: -1 });
 propertySchema.index({ listedBy: 1, createdAt: -1 });
 propertySchema.index({ status: 1, createdAt: -1 });
+propertySchema.index({ verificationStatus: 1, createdAt: -1 });
+propertySchema.index({ furnishing: 1, createdAt: -1 });
 
 // Full-text search index on search targets
 propertySchema.index(

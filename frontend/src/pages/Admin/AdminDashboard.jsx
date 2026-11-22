@@ -120,6 +120,18 @@ export const AdminDashboard = () => {
     fetchAdminInquiries();
   }, []);
 
+  // Keyboard navigation & modal dismissal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (deleteTarget) setDeleteTarget(null);
+        else if (isModalOpen) setIsModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [deleteTarget, isModalOpen]);
+
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 4000);
@@ -687,7 +699,15 @@ export const AdminDashboard = () => {
       {/* CREATE / EDIT PROPERTY MODAL */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="admin-property-modal-title">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm overflow-y-auto" 
+            role="dialog" 
+            aria-modal="true" 
+            aria-labelledby="admin-property-modal-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsModalOpen(false);
+            }}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -1301,7 +1321,15 @@ export const AdminDashboard = () => {
       {/* DELETE CONFIRMATION MODAL */}
       <AnimatePresence>
         {deleteTarget && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="delete-property-modal-title">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm" 
+            role="dialog" 
+            aria-modal="true" 
+            aria-labelledby="delete-property-modal-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setDeleteTarget(null);
+            }}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

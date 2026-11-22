@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useFavorites } from '../../context/FavoriteContext';
@@ -18,6 +18,7 @@ export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,10 +32,33 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Dismiss dropdowns and menus on route change, Escape key, or click outside
   useEffect(() => {
     setMobileMenuOpen(false);
     setProfileDropdownOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setProfileDropdownOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -118,7 +142,7 @@ export const Navbar = () => {
             <div className="h-4 w-px bg-stone-300" />
 
             {isAuthenticated ? (
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                   className="flex items-center gap-2.5 px-3 py-1.5 rounded-md border border-stone-200 bg-white text-stone-800 hover:bg-stone-50 text-xs font-semibold transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
@@ -216,16 +240,36 @@ export const Navbar = () => {
             className="md:hidden bg-white border-b border-stone-200 shadow-lg overflow-hidden text-stone-900"
           >
             <div className="px-6 py-6 space-y-4 text-xs font-bold uppercase tracking-wider">
-              <Link to="/properties?purpose=sale" className="block py-2 hover:text-[#14532D]">
+              <Link 
+                to="/properties?purpose=sale" 
+                className={`block py-2 transition-colors ${
+                  location.search.includes('purpose=sale') ? 'text-[#14532D] font-black' : 'text-stone-700 hover:text-[#14532D]'
+                }`}
+              >
                 Buy Residences
               </Link>
-              <Link to="/properties?purpose=rent" className="block py-2 hover:text-[#14532D]">
+              <Link 
+                to="/properties?purpose=rent" 
+                className={`block py-2 transition-colors ${
+                  location.search.includes('purpose=rent') ? 'text-[#14532D] font-black' : 'text-stone-700 hover:text-[#14532D]'
+                }`}
+              >
                 Rent Residences
               </Link>
-              <Link to="/properties" className="block py-2 hover:text-[#14532D]">
+              <Link 
+                to="/properties" 
+                className={`block py-2 transition-colors ${
+                  location.pathname === '/properties' && !location.search ? 'text-[#14532D] font-black' : 'text-stone-700 hover:text-[#14532D]'
+                }`}
+              >
                 Explore Catalog
               </Link>
-              <Link to="/favorites" className="flex items-center justify-between py-2 hover:text-[#14532D]">
+              <Link 
+                to="/favorites" 
+                className={`flex items-center justify-between py-2 transition-colors ${
+                  location.pathname === '/favorites' ? 'text-[#14532D] font-black' : 'text-stone-700 hover:text-[#14532D]'
+                }`}
+              >
                 <span>Saved Residences</span>
                 {favoriteCount > 0 && (
                   <span className="bg-[#14532D] text-white text-xs font-bold px-2 py-0.5 rounded-xs">
@@ -234,7 +278,12 @@ export const Navbar = () => {
                 )}
               </Link>
               {isAdmin && (
-                <Link to="/admin" className="block py-2 text-[#14532D]">
+                <Link 
+                  to="/admin" 
+                  className={`block py-2 transition-colors ${
+                    location.pathname === '/admin' ? 'text-[#14532D] font-black' : 'text-stone-700 hover:text-[#14532D]'
+                  }`}
+                >
                   Admin Console
                 </Link>
               )}
