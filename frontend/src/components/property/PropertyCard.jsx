@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFavorites } from '../../context/FavoriteContext';
 import { formatPrice } from '../../utils/formatters';
-import { Heart, MapPin, Bed, Bath, Square, ArrowRight } from 'lucide-react';
+import { Heart, MapPin, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format&fit=crop";
@@ -24,16 +24,21 @@ export const PropertyCard = ({ property }) => {
     }
   };
 
+  // Price per square foot calculation for sale properties
+  const pricePerSqFt = property.area && property.purpose === 'sale' && property.price
+    ? Math.round(property.price / property.area)
+    : null;
+
   return (
-    <motion.div
+    <motion.article
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
       className="group bg-white rounded-lg border border-stone-200 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full"
     >
-      {/* Image Banner */}
-      <div className="relative w-full h-64 overflow-hidden bg-stone-100">
+      {/* Architectural Image Container */}
+      <div className="relative w-full aspect-[16/10] overflow-hidden bg-stone-100">
         {!imageLoaded && !imageError && (
           <div className="absolute inset-0 animate-shimmer" />
         )}
@@ -43,30 +48,31 @@ export const PropertyCard = ({ property }) => {
           alt={property.title}
           onLoad={() => setImageLoaded(true)}
           onError={() => setImageError(true)}
-          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${
+          className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03] ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           loading="lazy"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
+        {/* Subtle Top Scrim for Badges */}
+        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-stone-950/40 to-transparent pointer-events-none" />
 
-        {/* Top Badges & Heart */}
-        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
-          <div className="flex items-center gap-2 pointer-events-auto">
+        {/* Top Badges & Heart Action */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+          <div className="flex items-center gap-1.5 pointer-events-auto">
             {property.featured && (
-              <span className="bg-[#14532D] text-white text-xs font-semibold px-2.5 py-0.5 rounded-sm uppercase tracking-wider shadow-xs">
+              <span className="bg-[#14532D] text-white text-xs font-semibold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-xs">
                 Featured
               </span>
             )}
-            <span className="bg-white/95 text-stone-900 text-xs font-semibold px-2.5 py-0.5 rounded-sm uppercase tracking-wider shadow-xs border border-stone-200/80">
+            <span className="bg-[#FBFBF9]/95 text-stone-900 text-xs font-semibold px-2.5 py-0.5 rounded-sm uppercase tracking-wider shadow-xs border border-stone-200/90">
               {property.purpose === 'sale' ? 'For Sale' : 'For Rent'}
             </span>
             {property.status && property.status !== 'available' && (
-              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-sm uppercase tracking-wider shadow-xs ${
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-xs ${
                 property.status === 'sold'
-                  ? 'bg-rose-600 text-white'
-                  : 'bg-amber-600 text-white'
+                  ? 'bg-rose-700 text-white'
+                  : 'bg-amber-700 text-white'
               }`}>
                 {property.status}
               </span>
@@ -74,12 +80,12 @@ export const PropertyCard = ({ property }) => {
           </div>
 
           <motion.button
-            whileTap={{ scale: 0.85 }}
+            whileTap={{ scale: 0.88 }}
             onClick={handleFavoriteClick}
             className={`pointer-events-auto p-2 rounded-md transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-[#14532D] ${
               fav
-                ? 'bg-rose-500 text-white'
-                : 'bg-white/90 text-stone-700 hover:bg-white hover:text-rose-500'
+                ? 'bg-rose-600 text-white'
+                : 'bg-white/90 text-stone-700 hover:bg-white hover:text-rose-600'
             }`}
             aria-label={fav ? `Remove ${property.title} from favorites` : `Save ${property.title} to favorites`}
           >
@@ -87,76 +93,90 @@ export const PropertyCard = ({ property }) => {
           </motion.button>
         </div>
 
-        {/* Property Type Badge */}
-        <div className="absolute bottom-3 left-3.5">
-          <span className="bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-xs uppercase tracking-wider">
+        {/* Property Type Architectural Indicator */}
+        <div className="absolute bottom-3 left-3 pointer-events-none">
+          <span className="bg-stone-900/85 backdrop-blur-xs text-white text-xs font-semibold px-2.5 py-0.5 rounded-sm uppercase tracking-wider border border-white/10">
             {property.propertyType}
           </span>
         </div>
       </div>
 
-      {/* Content */}
+      {/* Editorial Content */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         
-        <div className="space-y-1.5">
-          <div className="flex items-baseline justify-between">
-            <h3 className="text-xl font-bold text-stone-900 tracking-tight">
-              {formatPrice(property.price, property.purpose)}
-            </h3>
-            <span className="text-xs font-semibold uppercase tracking-wider text-stone-500">
-              {property.city}
-            </span>
+        <div className="space-y-2">
+          {/* Price & Rate Presentation */}
+          <div className="flex items-baseline justify-between gap-2">
+            <div>
+              <span className="font-serif text-2xl font-bold text-stone-900 tracking-tight">
+                {formatPrice(property.price, property.purpose)}
+              </span>
+              {property.purpose === 'rent' && (
+                <span className="text-xs text-stone-500 font-medium ml-1">/ month</span>
+              )}
+            </div>
+
+            {pricePerSqFt ? (
+              <span className="text-xs text-stone-500 font-medium" title="Calculated rate per square foot">
+                ₹{pricePerSqFt.toLocaleString('en-IN')}/sq.ft
+              </span>
+            ) : (
+              <span className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                {property.city}
+              </span>
+            )}
           </div>
 
-          <Link to={`/properties/${property._id}`} className="block focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs">
-            <h4 className="text-base font-semibold text-stone-800 line-clamp-1 group-hover:text-[#14532D] transition-colors">
+          {/* Title Link */}
+          <Link 
+            to={`/properties/${property._id}`} 
+            className="block group/title focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs"
+          >
+            <h3 className="text-base font-semibold text-stone-900 line-clamp-1 group-hover/title:text-[#14532D] transition-colors">
               {property.title}
-            </h4>
+            </h3>
           </Link>
 
-          <p className="flex items-center gap-1.5 text-xs text-stone-500 line-clamp-1 font-normal">
+          {/* Location */}
+          <p className="flex items-center gap-1.5 text-xs text-stone-600 line-clamp-1 font-normal">
             <MapPin className="w-3.5 h-3.5 text-[#14532D] flex-shrink-0" />
-            {property.address}, {property.city}
+            <span>{property.address}, {property.city}</span>
           </p>
         </div>
 
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-3 gap-2 py-3 border-y border-stone-100 text-xs text-stone-700 font-medium">
-          <div className="flex items-center gap-1.5 justify-center py-1.5 rounded-md bg-stone-50 border border-stone-100">
-            <Bed className="w-3.5 h-3.5 text-[#14532D]" />
+        {/* Monograph Specifications Ribbon */}
+        <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-700">
+          <div className="flex items-center gap-2 font-medium">
             <span>{property.bedrooms} Beds</span>
-          </div>
-          <div className="flex items-center gap-1.5 justify-center py-1.5 rounded-md bg-stone-50 border border-stone-100">
-            <Bath className="w-3.5 h-3.5 text-[#14532D]" />
+            <span className="text-stone-300">•</span>
             <span>{property.bathrooms} Baths</span>
-          </div>
-          <div className="flex items-center gap-1.5 justify-center py-1.5 rounded-md bg-stone-50 border border-stone-100">
-            <Square className="w-3.5 h-3.5 text-[#14532D]" />
-            <span>{property.area} sq.ft</span>
+            <span className="text-stone-300">•</span>
+            <span>{property.area?.toLocaleString('en-IN')} sq.ft</span>
           </div>
         </div>
 
-        {/* Footer Link */}
-        <div className="flex items-center justify-between pt-1">
+        {/* Footer Action */}
+        <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
           <span className={`text-xs font-bold uppercase tracking-wider ${
             property.status === 'sold'
-              ? 'text-rose-600'
+              ? 'text-rose-700'
               : property.status === 'rented'
-              ? 'text-amber-600'
-              : 'text-stone-500'
+              ? 'text-amber-700'
+              : 'text-[#14532D]'
           }`}>
-            {property.status || 'Available'}
+            {property.status === 'available' ? 'Verified Direct' : property.status || 'Available'}
           </span>
+
           <Link
             to={`/properties/${property._id}`}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#14532D] hover:text-[#166534] transition-colors group/btn focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs"
+            className="inline-flex items-center gap-1 text-xs font-bold text-stone-800 hover:text-[#14532D] transition-colors group/link focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs"
           >
-            View Details
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
+            <span>View Residence</span>
+            <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
           </Link>
         </div>
 
       </div>
-    </motion.div>
+    </motion.article>
   );
 };

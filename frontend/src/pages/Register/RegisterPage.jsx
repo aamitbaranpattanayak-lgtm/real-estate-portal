@@ -57,16 +57,17 @@ export const RegisterPage = () => {
         <div className="text-center space-y-2 mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-2 focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-md">
             <div className="w-8 h-8 rounded-md bg-[#14532D] text-white flex items-center justify-center font-bold text-xs">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 3L21 21H17L12 11L7 21H3L12 3Z" fill="currentColor"/>
-              </svg>
+              <span className="font-serif text-base">H</span>
             </div>
           </Link>
-          <h2 className="text-3xl font-bold text-stone-900 tracking-tight">
-            Let's find your place.
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#14532D] block">
+            Member Registration
+          </span>
+          <h2 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">
+            Create HAVEN Account
           </h2>
-          <p className="text-xs text-stone-500 font-medium">
-            Join HAVEN to save properties and connect directly with verified owners.
+          <p className="text-xs text-stone-600 font-medium">
+            Save curated properties and communicate directly with verified representatives.
           </p>
         </div>
 

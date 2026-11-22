@@ -289,13 +289,13 @@ export const AdminDashboard = () => {
         </AnimatePresence>
 
         {/* Dashboard Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-200 pb-6">
           <div>
-            <span className="text-xs font-bold text-[#14532D] uppercase tracking-widest block mb-1">
-              Admin Console
+            <span className="text-xs font-bold text-[#14532D] uppercase tracking-[0.2em] block mb-1">
+              Curator Management Console
             </span>
-            <h1 className="text-3xl font-bold tracking-tight">
-              HAVEN Property Management
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+              HAVEN Residences Management
             </h1>
           </div>
 
@@ -304,7 +304,7 @@ export const AdminDashboard = () => {
               onClick={handleOpenCreateModal}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-xs transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#14532D]"
             >
-              <Plus className="w-4 h-4" /> Add Property
+              <Plus className="w-4 h-4" /> Add Residence
             </button>
           </div>
         </div>
