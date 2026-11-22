@@ -129,6 +129,27 @@ describe("HAVEN Real Estate Portal — API & Security Test Suite", () => {
       expect(res.body.message).toContain("Invalid property ID");
     });
 
+    it("GET /api/properties/filter-options should return 200 with structured dynamic filter options", async () => {
+      const Property = require("../src/models/Property");
+      const spy = jest.spyOn(Property, "aggregate").mockResolvedValue([
+        {
+          total: [{ count: 1 }],
+          cities: [{ _id: "Bengaluru", count: 1 }],
+          prices: [{ price: 6500000 }],
+          propertyTypes: [{ _id: "flat", count: 1 }],
+        },
+      ]);
+      const res = await request(app).get("/api/properties/filter-options?listingType=sale");
+      spy.mockRestore();
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty("cities");
+      expect(res.body.data).toHaveProperty("priceRanges");
+      expect(res.body.data).toHaveProperty("totalProperties");
+      expect(Array.isArray(res.body.data.cities)).toBe(true);
+      expect(Array.isArray(res.body.data.priceRanges)).toBe(true);
+    });
+
     it("POST /api/properties should block unauthenticated creation with 401", async () => {
       const res = await request(app)
         .post("/api/properties")

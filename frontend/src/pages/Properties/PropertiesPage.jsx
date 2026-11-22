@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { propertyService } from '../../services/propertyService';
 import { PropertyCard } from '../../components/property/PropertyCard';
@@ -11,7 +11,9 @@ import {
   X, 
   Filter,
   Building2,
-  MapPin
+  MapPin,
+  ChevronDown,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,6 +22,7 @@ export const PropertiesPage = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [showManualPrice, setShowManualPrice] = useState(false);
 
   // Synchronized Filter State (Single source of truth initialized from URL)
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
@@ -30,7 +33,17 @@ export const PropertiesPage = () => {
   const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
   const [sortBy, setSortBy] = useState('newest');
 
-  // Keep local form controls in sync whenever the URL changes (e.g. back/forward navigation or home search)
+  // Dynamic Database-Driven Filter Options State
+  const [filterOptions, setFilterOptions] = useState({
+    cities: [],
+    priceRanges: [],
+    propertyTypes: [],
+    totalProperties: 0,
+    priceStats: null,
+  });
+  const [optionsLoading, setOptionsLoading] = useState(false);
+
+  // Keep local form controls in sync whenever the URL changes
   useEffect(() => {
     setSearchInput(searchParams.get('search') || '');
     setCity(searchParams.get('city') || '');
@@ -39,6 +52,28 @@ export const PropertiesPage = () => {
     setMinPrice(searchParams.get('minPrice') || '');
     setMaxPrice(searchParams.get('maxPrice') || '');
   }, [searchParams]);
+
+  // Fetch dynamic database-derived filter options based on listing type
+  const fetchFilterOptions = useCallback(async (listingType) => {
+    setOptionsLoading(true);
+    try {
+      const res = await propertyService.getFilterOptions({ listingType: listingType || '' });
+      if (res.success && res.data) {
+        setFilterOptions(res.data);
+        return res.data;
+      }
+    } catch (err) {
+      console.error('Failed to load dynamic filter options:', err);
+    } finally {
+      setOptionsLoading(false);
+    }
+    return null;
+  }, []);
+
+  // Fetch filter options on mount and whenever listing type (purpose) changes
+  useEffect(() => {
+    fetchFilterOptions(purpose);
+  }, [purpose, fetchFilterOptions]);
 
   // Fetch properties strictly based on URL search parameters (Single Source of Truth)
   const fetchFilteredProperties = useCallback(async () => {
@@ -97,7 +132,7 @@ export const PropertiesPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mobileFilterOpen]);
 
-  // Push filter state to URL with validation guard
+  // Push full filter state to URL with validation guard
   const applyFilters = () => {
     const params = new URLSearchParams();
     if (searchInput.trim()) params.set('search', searchInput.trim());
@@ -120,48 +155,167 @@ export const PropertiesPage = () => {
     setMobileFilterOpen(false);
   };
 
-  const handlePurposeChange = (newPurpose) => {
+  // Section 4: Filter Dependencies - Purpose Change
+  // Switching Buy / Rent / Lease refreshes dynamic options and clears incompatible city and price selections
+  const handlePurposeChange = async (newPurpose) => {
     setPurpose(newPurpose);
+
     const params = new URLSearchParams(searchParams);
     if (newPurpose) {
       params.set('purpose', newPurpose);
     } else {
       params.delete('purpose');
     }
+
+    // Refresh dynamic options for the target listing type
+    const newOptions = await fetchFilterOptions(newPurpose);
+
+    // 1. Incompatible city check: clear city if not in the new listing type's available cities
+    if (newOptions && city) {
+      const cityStillValid = newOptions.cities.some(
+        (c) => c.name.toLowerCase() === city.trim().toLowerCase()
+      );
+      if (!cityStillValid) {
+        setCity('');
+        params.delete('city');
+      }
+    } else if (!newOptions) {
+      setCity('');
+      params.delete('city');
+    }
+
+    // 2. Clear incompatible price selection because sale (Crores) vs rent/lease (monthly) scales differ
+    setMinPrice('');
+    setMaxPrice('');
+    params.delete('minPrice');
+    params.delete('maxPrice');
+
     setSearchParams(params);
   };
 
+  // Section 4: Changing city updates matching properties immediately
+  const handleCityChange = (newCity) => {
+    setCity(newCity);
+    const params = new URLSearchParams(searchParams);
+    if (newCity) {
+      params.set('city', newCity);
+    } else {
+      params.delete('city');
+    }
+    setSearchParams(params);
+  };
+
+  // Section 4: Changing price range updates matching properties immediately
+  const handlePriceRangeChange = (rangeKey) => {
+    const params = new URLSearchParams(searchParams);
+    if (!rangeKey) {
+      setMinPrice('');
+      setMaxPrice('');
+      params.delete('minPrice');
+      params.delete('maxPrice');
+    } else {
+      const range = filterOptions.priceRanges.find((r) => r.key === rangeKey);
+      if (range) {
+        const min = range.minPrice !== null ? String(range.minPrice) : '';
+        const max = range.maxPrice !== null ? String(range.maxPrice) : '';
+        setMinPrice(min);
+        setMaxPrice(max);
+        if (min) params.set('minPrice', min);
+        else params.delete('minPrice');
+        if (max) params.set('maxPrice', max);
+        else params.delete('maxPrice');
+      }
+    }
+    setSearchParams(params);
+  };
+
+  // Section 4: Changing typology updates matching properties immediately
+  const handlePropertyTypeChange = (newType) => {
+    setPropertyType(newType);
+    const params = new URLSearchParams(searchParams);
+    if (newType) {
+      params.set('propertyType', newType);
+    } else {
+      params.delete('propertyType');
+    }
+    setSearchParams(params);
+  };
+
+  // Section 4: Reset filters preserves the currently selected listing type
   const handleResetFilters = () => {
     setSearchInput('');
     setCity('');
-    setPurpose('');
     setPropertyType('');
     setMinPrice('');
     setMaxPrice('');
-    setSearchParams({});
+
+    const params = new URLSearchParams();
+    if (purpose) {
+      params.set('purpose', purpose);
+    }
+    setSearchParams(params);
     setMobileFilterOpen(false);
   };
 
   const removeFilter = (key) => {
     const params = new URLSearchParams(searchParams);
-    params.delete(key);
-    if (key === 'search') setSearchInput('');
-    if (key === 'city') setCity('');
-    if (key === 'purpose') setPurpose('');
-    if (key === 'propertyType') setPropertyType('');
-    if (key === 'minPrice') setMinPrice('');
-    if (key === 'maxPrice') setMaxPrice('');
+    if (key === 'price') {
+      params.delete('minPrice');
+      params.delete('maxPrice');
+      setMinPrice('');
+      setMaxPrice('');
+    } else {
+      params.delete(key);
+      if (key === 'search') setSearchInput('');
+      if (key === 'city') setCity('');
+      if (key === 'purpose') {
+        setPurpose('');
+        fetchFilterOptions('');
+      }
+      if (key === 'propertyType') setPropertyType('');
+    }
     setSearchParams(params);
   };
 
-  // Active filters count
+  // Calculate which dynamic price range key is currently selected
+  const selectedPriceKey = useMemo(() => {
+    const matched = filterOptions.priceRanges.find(
+      (r) =>
+        (r.minPrice === null ? !minPrice : String(r.minPrice) === String(minPrice)) &&
+        (r.maxPrice === null ? !maxPrice : String(r.maxPrice) === String(maxPrice))
+    );
+    if (matched) return matched.key;
+    if (minPrice || maxPrice) return 'custom';
+    return '';
+  }, [filterOptions.priceRanges, minPrice, maxPrice]);
+
+  // Active filter badge labels
+  const activePriceRange = filterOptions.priceRanges.find((r) => r.key === selectedPriceKey);
+  const priceBadgeLabel = activePriceRange
+    ? `Budget: ${activePriceRange.label}`
+    : minPrice && maxPrice
+    ? `Budget: ₹${Number(minPrice).toLocaleString('en-IN')} – ₹${Number(maxPrice).toLocaleString('en-IN')}`
+    : minPrice
+    ? `Min Budget: ₹${Number(minPrice).toLocaleString('en-IN')}`
+    : maxPrice
+    ? `Max Budget: ₹${Number(maxPrice).toLocaleString('en-IN')}`
+    : null;
+
+  const purposeBadgeLabel =
+    searchParams.get('purpose') === 'sale'
+      ? 'Buy'
+      : searchParams.get('purpose') === 'rent'
+      ? 'Rent'
+      : searchParams.get('purpose') === 'lease'
+      ? 'Lease'
+      : null;
+
   const activeFilters = [
     searchParams.get('search') && { key: 'search', label: `Search: "${searchParams.get('search')}"` },
     searchParams.get('city') && { key: 'city', label: `City: ${searchParams.get('city')}` },
-    searchParams.get('purpose') && { key: 'purpose', label: `Purpose: ${searchParams.get('purpose') === 'sale' ? 'Buy' : 'Rent'}` },
-    searchParams.get('propertyType') && { key: 'propertyType', label: `Type: ${searchParams.get('propertyType')}` },
-    searchParams.get('minPrice') && { key: 'minPrice', label: `Min: ₹${Number(searchParams.get('minPrice')).toLocaleString('en-IN')}` },
-    searchParams.get('maxPrice') && { key: 'maxPrice', label: `Max: ₹${Number(searchParams.get('maxPrice')).toLocaleString('en-IN')}` },
+    purposeBadgeLabel && { key: 'purpose', label: `Listing Type: ${purposeBadgeLabel}` },
+    searchParams.get('propertyType') && { key: 'propertyType', label: `Typology: ${searchParams.get('propertyType')}` },
+    priceBadgeLabel && { key: 'price', label: priceBadgeLabel },
   ].filter(Boolean);
 
   return (
@@ -180,13 +334,13 @@ export const PropertiesPage = () => {
               Curated Properties in India
             </h1>
             <p className="text-stone-600 text-xs sm:text-sm mt-1">
-              Displaying <span className="font-bold text-stone-900">{properties.length}</span> certified direct listings
+              Displaying <span className="font-bold text-stone-900">{properties.length}</span> verified residences across dynamic database filters
             </p>
           </div>
 
           {/* Quick Purpose Segmented Switch & Sort */}
           <div className="flex flex-wrap items-center gap-3">
-            {/* Purpose Switch */}
+            {/* Purpose Switch: All | Buy | Rent | Lease */}
             <div className="flex items-center rounded-md border border-stone-200 bg-white p-1 text-xs font-bold shadow-xs">
               <button
                 type="button"
@@ -214,6 +368,15 @@ export const PropertiesPage = () => {
                 }`}
               >
                 Rent
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePurposeChange('lease')}
+                className={`px-3 py-1.5 rounded-sm transition-all cursor-pointer ${
+                  purpose === 'lease' ? 'bg-[#14532D] text-white shadow-xs' : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                Lease
               </button>
             </div>
 
@@ -262,7 +425,7 @@ export const PropertiesPage = () => {
             <input
               id="properties-search-input"
               type="text"
-              placeholder="Search by locality, development, city, or property type (e.g. 'Whitefield', 'Villa', 'Bengaluru')..."
+              placeholder="Search by locality, development, city, or property type (e.g. 'Candolim', 'Gachibowli', 'Villa')..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-11 pr-28 py-3 rounded-md border border-stone-200 bg-white text-xs font-semibold text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] shadow-xs transition-all"
@@ -313,7 +476,7 @@ export const PropertiesPage = () => {
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="text-xs font-bold text-[#14532D] hover:underline ml-2"
+                className="text-xs font-bold text-[#14532D] hover:underline ml-2 cursor-pointer"
               >
                 Reset All
               </button>
@@ -330,7 +493,7 @@ export const PropertiesPage = () => {
           <aside className="hidden lg:block space-y-6 bg-white p-6 rounded-lg border border-stone-200 shadow-xs sticky top-28">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2 font-bold text-stone-900 text-xs uppercase tracking-wider">
-                <SlidersHorizontal className="w-4 h-4 text-[#14532D]" /> Filter Parameters
+                <SlidersHorizontal className="w-4 h-4 text-[#14532D]" /> Dynamic Filters
               </div>
               <button
                 onClick={handleResetFilters}
@@ -341,29 +504,117 @@ export const PropertiesPage = () => {
               </button>
             </div>
 
-            {/* City Selection */}
+            {/* Section 3: Dynamic City Filter (Generated from real records with counts) */}
             <div className="space-y-1.5">
-              <label htmlFor="filter-desktop-city" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
-                Metropolitan Area
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="filter-desktop-city" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
+                  Metropolitan Area
+                </label>
+                {optionsLoading && (
+                  <span className="text-[10px] text-stone-400 flex items-center gap-1">
+                    <Loader2 className="w-2.5 h-2.5 animate-spin text-[#14532D]" /> Syncing
+                  </span>
+                )}
+              </div>
               <select
                 id="filter-desktop-city"
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
+                onChange={(e) => handleCityChange(e.target.value)}
+                disabled={optionsLoading}
+                className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer disabled:opacity-60"
               >
-                <option value="">All Metropolitan Areas</option>
-                <option value="Bengaluru">Bengaluru</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Delhi-NCR">Delhi NCR</option>
-                <option value="Hyderabad">Hyderabad</option>
-                <option value="Pune">Pune</option>
-                <option value="Kolkata">Kolkata</option>
-                <option value="Goa">Goa</option>
+                <option value="">
+                  {optionsLoading
+                    ? 'Loading verified locations...'
+                    : filterOptions.cities.length === 0
+                    ? 'No locations with matching listings'
+                    : `All Locations (${filterOptions.totalProperties})`}
+                </option>
+                {filterOptions.cities.map((c) => (
+                  <option key={c.name} value={c.name}>
+                    {c.name} ({c.count})
+                  </option>
+                ))}
               </select>
             </div>
 
-            {/* Property Typology */}
+            {/* Section 2: Dynamic Price Ranges (Generated from real records with counts) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="filter-desktop-price-range" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
+                  {purpose === 'rent' || purpose === 'lease' ? 'Monthly Lease / Rent' : 'Acquisition Budget'}
+                </label>
+                {optionsLoading && (
+                  <span className="text-[10px] text-stone-400 flex items-center gap-1">
+                    <Loader2 className="w-2.5 h-2.5 animate-spin text-[#14532D]" /> Syncing
+                  </span>
+                )}
+              </div>
+              <select
+                id="filter-desktop-price-range"
+                value={selectedPriceKey}
+                onChange={(e) => handlePriceRangeChange(e.target.value)}
+                disabled={optionsLoading}
+                className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer disabled:opacity-60"
+              >
+                <option value="">
+                  {filterOptions.priceRanges.length === 0
+                    ? 'No price ranges available'
+                    : 'All Price Ranges'}
+                </option>
+                {filterOptions.priceRanges.map((range) => (
+                  <option key={range.key} value={range.key}>
+                    {range.label} ({range.count})
+                  </option>
+                ))}
+                {selectedPriceKey === 'custom' && (
+                  <option value="custom">Custom Boundary (Active)</option>
+                )}
+              </select>
+            </div>
+
+            {/* Optional Manual Budget Boundaries Disclosure */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setShowManualPrice(!showManualPrice)}
+                className="flex items-center gap-1 text-[11px] font-semibold text-stone-500 hover:text-stone-800 transition-colors focus-visible:ring-1 focus-visible:ring-[#14532D] rounded-xs cursor-pointer"
+              >
+                <ChevronDown className={`w-3 h-3 transition-transform ${showManualPrice ? 'rotate-180' : ''}`} />
+                <span>Custom numeric boundaries</span>
+              </button>
+
+              {showManualPrice && (
+                <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-stone-100">
+                  <div>
+                    <label htmlFor="filter-desktop-min-price" className="sr-only">Minimum Price</label>
+                    <input
+                      id="filter-desktop-min-price"
+                      type="number"
+                      min={0}
+                      placeholder="Min INR"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="w-full p-2 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="filter-desktop-max-price" className="sr-only">Maximum Price</label>
+                    <input
+                      id="filter-desktop-max-price"
+                      type="number"
+                      min={0}
+                      placeholder="Max INR"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="w-full p-2 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Property Typology (Dynamic counts when available) */}
             <div className="space-y-1.5">
               <label htmlFor="filter-desktop-type" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
                 Property Typology
@@ -371,54 +622,31 @@ export const PropertiesPage = () => {
               <select
                 id="filter-desktop-type"
                 value={propertyType}
-                onChange={(e) => setPropertyType(e.target.value)}
+                onChange={(e) => handlePropertyTypeChange(e.target.value)}
                 className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
               >
                 <option value="">All Typologies</option>
-                <option value="flat">Flat</option>
-                <option value="apartment">Apartment</option>
-                <option value="villa">Villa</option>
-                <option value="bungalow">Bungalow</option>
-                <option value="house">House</option>
-                <option value="penthouse">Penthouse</option>
-                <option value="commercial">Commercial</option>
+                {filterOptions.propertyTypes.length > 0 ? (
+                  filterOptions.propertyTypes.map((t) => (
+                    <option key={t.name} value={t.name}>
+                      {t.name.charAt(0).toUpperCase() + t.name.slice(1)} ({t.count})
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="flat">Flat</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="villa">Villa</option>
+                    <option value="bungalow">Bungalow</option>
+                    <option value="house">House</option>
+                    <option value="penthouse">Penthouse</option>
+                    <option value="commercial">Commercial</option>
+                  </>
+                )}
               </select>
             </div>
 
-            {/* Budget Range */}
-            <div className="space-y-1.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
-                Budget Boundaries (INR)
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label htmlFor="filter-desktop-min-price" className="sr-only">Minimum Price</label>
-                  <input
-                    id="filter-desktop-min-price"
-                    type="number"
-                    min={0}
-                    placeholder="Min Price"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                    className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="filter-desktop-max-price" className="sr-only">Maximum Price</label>
-                  <input
-                    id="filter-desktop-max-price"
-                    type="number"
-                    min={0}
-                    placeholder="Max Price"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D]"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Apply Action */}
+            {/* Apply Action Button */}
             <button
               onClick={applyFilters}
               className="w-full py-2.5 bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs rounded-md shadow-xs transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
@@ -447,15 +675,15 @@ export const PropertiesPage = () => {
                     No Matching Residences Found
                   </h2>
                   <p className="text-stone-600 text-xs max-w-sm mx-auto leading-relaxed">
-                    Try broadening your search parameters or reset your filters to view the complete portfolio.
+                    No properties match your current combination of filters. Try broadening your location or budget range, or clear filters to view all listings.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="px-5 py-2.5 rounded-md bg-[#14532D] text-white font-bold text-xs hover:bg-[#166534] transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D]"
+                  className="px-5 py-2.5 rounded-md bg-[#14532D] text-white font-bold text-xs hover:bg-[#166534] transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
                 >
-                  Clear All Filters
+                  Clear Filters (Preserve Listing Type)
                 </button>
               </div>
             )}
@@ -500,24 +728,25 @@ export const PropertiesPage = () => {
                 </button>
               </div>
 
-              {/* Purpose Selection */}
+              {/* Purpose Selection: All | Buy | Rent | Lease */}
               <div className="space-y-1.5">
                 <label htmlFor="filter-mobile-purpose" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
-                  Purpose
+                  Listing Type
                 </label>
                 <select
                   id="filter-mobile-purpose"
                   value={purpose}
-                  onChange={(e) => setPurpose(e.target.value)}
+                  onChange={(e) => handlePurposeChange(e.target.value)}
                   className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900"
                 >
-                  <option value="">All (Buy & Rent)</option>
+                  <option value="">All Transactions (Buy, Rent & Lease)</option>
                   <option value="sale">Buy Only</option>
                   <option value="rent">Rent Only</option>
+                  <option value="lease">Lease Only</option>
                 </select>
               </div>
 
-              {/* City */}
+              {/* Dynamic City Filter */}
               <div className="space-y-1.5">
                 <label htmlFor="filter-mobile-city" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
                   Metropolitan Area
@@ -525,17 +754,50 @@ export const PropertiesPage = () => {
                 <select
                   id="filter-mobile-city"
                   value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  onChange={(e) => handleCityChange(e.target.value)}
+                  disabled={optionsLoading}
                   className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900"
                 >
-                  <option value="">All Metropolitan Areas</option>
-                  <option value="Bengaluru">Bengaluru</option>
-                  <option value="Mumbai">Mumbai</option>
-                  <option value="Delhi-NCR">Delhi NCR</option>
-                  <option value="Hyderabad">Hyderabad</option>
-                  <option value="Pune">Pune</option>
-                  <option value="Kolkata">Kolkata</option>
-                  <option value="Goa">Goa</option>
+                  <option value="">
+                    {optionsLoading
+                      ? 'Loading locations...'
+                      : filterOptions.cities.length === 0
+                      ? 'No locations with matching listings'
+                      : `All Locations (${filterOptions.totalProperties})`}
+                  </option>
+                  {filterOptions.cities.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name} ({c.count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Dynamic Price Ranges */}
+              <div className="space-y-1.5">
+                <label htmlFor="filter-mobile-price-range" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
+                  {purpose === 'rent' || purpose === 'lease' ? 'Monthly Lease / Rent' : 'Acquisition Budget'}
+                </label>
+                <select
+                  id="filter-mobile-price-range"
+                  value={selectedPriceKey}
+                  onChange={(e) => handlePriceRangeChange(e.target.value)}
+                  disabled={optionsLoading}
+                  className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900"
+                >
+                  <option value="">
+                    {filterOptions.priceRanges.length === 0
+                      ? 'No price ranges available'
+                      : 'All Price Ranges'}
+                  </option>
+                  {filterOptions.priceRanges.map((range) => (
+                    <option key={range.key} value={range.key}>
+                      {range.label} ({range.count})
+                    </option>
+                  ))}
+                  {selectedPriceKey === 'custom' && (
+                    <option value="custom">Custom Boundary (Active)</option>
+                  )}
                 </select>
               </div>
 
@@ -547,17 +809,27 @@ export const PropertiesPage = () => {
                 <select
                   id="filter-mobile-type"
                   value={propertyType}
-                  onChange={(e) => setPropertyType(e.target.value)}
+                  onChange={(e) => handlePropertyTypeChange(e.target.value)}
                   className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900"
                 >
                   <option value="">All Typologies</option>
-                  <option value="flat">Flat</option>
-                  <option value="apartment">Apartment</option>
-                  <option value="villa">Villa</option>
-                  <option value="bungalow">Bungalow</option>
-                  <option value="house">House</option>
-                  <option value="penthouse">Penthouse</option>
-                  <option value="commercial">Commercial</option>
+                  {filterOptions.propertyTypes.length > 0 ? (
+                    filterOptions.propertyTypes.map((t) => (
+                      <option key={t.name} value={t.name}>
+                        {t.name.charAt(0).toUpperCase() + t.name.slice(1)} ({t.count})
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="flat">Flat</option>
+                      <option value="apartment">Apartment</option>
+                      <option value="villa">Villa</option>
+                      <option value="bungalow">Bungalow</option>
+                      <option value="house">House</option>
+                      <option value="penthouse">Penthouse</option>
+                      <option value="commercial">Commercial</option>
+                    </>
+                  )}
                 </select>
               </div>
 
@@ -575,7 +847,7 @@ export const PropertiesPage = () => {
                   onClick={handleResetFilters}
                   className="w-full py-2.5 rounded-md border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-50 transition-colors cursor-pointer"
                 >
-                  Reset All
+                  Reset All (Keep Listing Type)
                 </button>
               </div>
             </motion.div>

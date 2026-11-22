@@ -27,6 +27,21 @@ export const HomePage = () => {
   const [city, setCity] = useState('');
   const [propertyType, setPropertyType] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [dynamicCities, setDynamicCities] = useState([]);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const res = await propertyService.getFilterOptions({ listingType: purpose });
+        if (res.success && res.data?.cities) {
+          setDynamicCities(res.data.cities);
+        }
+      } catch (err) {
+        console.error('Failed to load cities for home search:', err);
+      }
+    };
+    fetchCities();
+  }, [purpose]);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -112,7 +127,10 @@ export const HomePage = () => {
                   <div className="flex items-center gap-2 border-b border-stone-100 pb-3" role="group" aria-label="Transaction Purpose">
                     <button
                       type="button"
-                      onClick={() => setPurpose('sale')}
+                      onClick={() => {
+                        setPurpose('sale');
+                        setCity('');
+                      }}
                       className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer ${
                         purpose === 'sale'
                           ? 'bg-[#14532D] text-white shadow-xs'
@@ -123,7 +141,10 @@ export const HomePage = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setPurpose('rent')}
+                      onClick={() => {
+                        setPurpose('rent');
+                        setCity('');
+                      }}
                       className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer ${
                         purpose === 'rent'
                           ? 'bg-[#14532D] text-white shadow-xs'
@@ -148,13 +169,11 @@ export const HomePage = () => {
                         className="w-full p-2.5 rounded-md border border-stone-200 bg-stone-50/60 text-xs font-semibold text-stone-900 focus:outline-none focus:border-[#14532D] focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
                       >
                         <option value="">All Locations</option>
-                        <option value="Bengaluru">Bengaluru</option>
-                        <option value="Mumbai">Mumbai</option>
-                        <option value="Delhi-NCR">Delhi NCR</option>
-                        <option value="Hyderabad">Hyderabad</option>
-                        <option value="Pune">Pune</option>
-                        <option value="Kolkata">Kolkata</option>
-                        <option value="Goa">Goa</option>
+                        {dynamicCities.map((c) => (
+                          <option key={c.name} value={c.name}>
+                            {c.name} ({c.count})
+                          </option>
+                        ))}
                       </select>
                     </div>
 
