@@ -57,10 +57,25 @@ export const AdminDashboard = () => {
     address: '',
     city: 'Bengaluru',
     state: 'Karnataka',
+    area: 1000,
+    carpetArea: '',
+    builtUpArea: '',
+    superBuiltUpArea: '',
     bedrooms: 2,
     bathrooms: 2,
-    area: 1000,
+    floorNumber: '',
+    totalFloors: '',
+    furnishing: 'unfurnished',
+    facing: '',
+    balconies: '',
+    parkingSpaces: '',
+    reraNumber: '',
+    reraAuthority: '',
+    verificationStatus: 'unverified',
+    verificationNotes: '',
     image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format&fit=crop',
+    images: '',
+    floorPlan: '',
     ownerName: '',
     ownerEmail: '',
     ownerPhone: '',
@@ -129,10 +144,25 @@ export const AdminDashboard = () => {
       address: prop.address || '',
       city: prop.city || '',
       state: prop.state || '',
+      area: prop.area || 1000,
+      carpetArea: prop.carpetArea !== undefined && prop.carpetArea !== null ? prop.carpetArea : '',
+      builtUpArea: prop.builtUpArea !== undefined && prop.builtUpArea !== null ? prop.builtUpArea : '',
+      superBuiltUpArea: prop.superBuiltUpArea !== undefined && prop.superBuiltUpArea !== null ? prop.superBuiltUpArea : '',
       bedrooms: prop.bedrooms !== undefined ? prop.bedrooms : 1,
       bathrooms: prop.bathrooms !== undefined ? prop.bathrooms : 1,
-      area: prop.area || 1000,
+      floorNumber: prop.floorNumber !== undefined && prop.floorNumber !== null ? prop.floorNumber : '',
+      totalFloors: prop.totalFloors !== undefined && prop.totalFloors !== null ? prop.totalFloors : '',
+      furnishing: prop.furnishing || 'unfurnished',
+      facing: prop.facing || '',
+      balconies: prop.balconies !== undefined && prop.balconies !== null ? prop.balconies : '',
+      parkingSpaces: prop.parkingSpaces !== undefined && prop.parkingSpaces !== null ? prop.parkingSpaces : '',
+      reraNumber: prop.reraNumber || '',
+      reraAuthority: prop.reraAuthority || '',
+      verificationStatus: prop.verificationStatus || 'unverified',
+      verificationNotes: prop.verificationNotes || '',
       image: prop.image || '',
+      images: Array.isArray(prop.images) ? prop.images.join('\n') : '',
+      floorPlan: prop.floorPlan || '',
       ownerName: prop.ownerName || '',
       ownerEmail: prop.ownerEmail || '',
       ownerPhone: prop.ownerPhone || '',
@@ -172,9 +202,26 @@ export const AdminDashboard = () => {
     const payload = {
       ...formData,
       price: Number(formData.price),
-      bedrooms: Number(formData.bedrooms),
-      bathrooms: Number(formData.bathrooms),
       area: Number(formData.area),
+      bedrooms: formData.propertyType === 'commercial' ? 0 : Number(formData.bedrooms || 0),
+      bathrooms: Number(formData.bathrooms || 1),
+      carpetArea: formData.carpetArea !== '' ? Number(formData.carpetArea) : undefined,
+      builtUpArea: formData.builtUpArea !== '' ? Number(formData.builtUpArea) : undefined,
+      superBuiltUpArea: formData.superBuiltUpArea !== '' ? Number(formData.superBuiltUpArea) : undefined,
+      floorNumber: formData.floorNumber !== '' ? Number(formData.floorNumber) : undefined,
+      totalFloors: formData.totalFloors !== '' ? Number(formData.totalFloors) : undefined,
+      balconies: formData.balconies !== '' ? Number(formData.balconies) : undefined,
+      parkingSpaces: formData.parkingSpaces !== '' ? Number(formData.parkingSpaces) : undefined,
+      furnishing: formData.furnishing || undefined,
+      facing: formData.facing ? formData.facing.toLowerCase() : undefined,
+      reraNumber: formData.reraNumber ? formData.reraNumber.trim() : null,
+      reraAuthority: formData.reraAuthority ? formData.reraAuthority.trim() : null,
+      verificationStatus: formData.verificationStatus || 'unverified',
+      verificationNotes: formData.verificationNotes ? formData.verificationNotes.trim() : null,
+      floorPlan: formData.floorPlan ? formData.floorPlan.trim() : null,
+      images: typeof formData.images === 'string'
+        ? formData.images.split('\n').map((s) => s.trim()).filter(Boolean)
+        : Array.isArray(formData.images) ? formData.images : [],
     };
 
     try {
@@ -645,305 +692,594 @@ export const AdminDashboard = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-lg shadow-2xl border border-stone-200 max-w-2xl w-full my-8 overflow-hidden"
+              className="bg-white rounded-lg shadow-2xl border border-stone-200 max-w-3xl w-full my-8 overflow-hidden"
             >
               <div className="bg-[#14532D] text-white p-6 flex items-center justify-between">
                 <div>
                   <h3 id="admin-property-modal-title" className="text-lg font-bold font-serif">
-                    {editingProperty ? 'Edit Property Listing' : 'Register New Property'}
+                    {editingProperty ? 'Edit Property Monograph' : 'Register New Monograph Residence'}
                   </h3>
-                  <p className="text-xs text-emerald-200">Fill in accurate property and owner details</p>
+                  <p className="text-xs text-emerald-200">Manage comprehensive domain intelligence, dimensions, and verified attributes</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   aria-label="Close modal"
-                  className="p-2 text-white/80 hover:text-white rounded-md bg-white/10"
+                  className="p-2 text-white/80 hover:text-white rounded-md bg-white/10 cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleFormSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <form onSubmit={handleFormSubmit} className="p-6 space-y-6 max-h-[78vh] overflow-y-auto">
                 {formError && (
-                  <div className="p-3 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+                  <div className="p-3.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                     <span>{formError}</span>
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <label htmlFor="admin-prop-title" className="text-xs font-bold uppercase tracking-wider text-stone-700">Property Title *</label>
-                  <input
-                    id="admin-prop-title"
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
-                    placeholder="e.g. Spacious 3BHK Flat in Whitefield"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label htmlFor="admin-prop-description" className="text-xs font-bold uppercase tracking-wider text-stone-700">Description *</label>
-                  <textarea
-                    id="admin-prop-description"
-                    rows={3}
-                    required
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
-                    placeholder="Provide a detailed overview of the property, surroundings, and amenities..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-purpose" className="text-xs font-bold uppercase tracking-wider text-stone-700">Purpose *</label>
-                    <select
-                      id="admin-prop-purpose"
-                      value={formData.purpose}
-                      onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    >
-                      <option value="sale">For Sale</option>
-                      <option value="rent">For Rent</option>
-                    </select>
-                  </div>
+                {/* 1. BASIC INFORMATION */}
+                <div className="space-y-3 pb-4 border-b border-stone-200">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                    1. Basic Information
+                  </span>
 
                   <div className="space-y-1">
-                    <label htmlFor="admin-prop-type" className="text-xs font-bold uppercase tracking-wider text-stone-700">Type *</label>
-                    <select
-                      id="admin-prop-type"
-                      value={formData.propertyType}
-                      onChange={(e) => setFormData({ ...formData, propertyType: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    >
-                      <option value="flat">Flat</option>
-                      <option value="apartment">Apartment</option>
-                      <option value="villa">Villa</option>
-                      <option value="bungalow">Bungalow</option>
-                      <option value="house">House</option>
-                      <option value="penthouse">Penthouse</option>
-                      <option value="commercial">Commercial</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-status" className="text-xs font-bold uppercase tracking-wider text-stone-700">Status *</label>
-                    <select
-                      id="admin-prop-status"
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    >
-                      <option value="available">Available</option>
-                      <option value="sold">Sold</option>
-                      <option value="rented">Rented</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-price" className="text-xs font-bold uppercase tracking-wider text-stone-700">Price (INR) *</label>
+                    <label htmlFor="admin-prop-title" className="text-xs font-bold uppercase tracking-wider text-stone-700">Property Title *</label>
                     <input
-                      id="admin-prop-price"
-                      type="number"
-                      required
-                      min={0}
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                      placeholder="e.g. 6500000"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-address" className="text-xs font-bold uppercase tracking-wider text-stone-700">Address *</label>
-                    <input
-                      id="admin-prop-address"
+                      id="admin-prop-title"
                       type="text"
                       required
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                      placeholder="Street / Locality"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                      placeholder="e.g. Spacious 3BHK Flat in Whitefield"
                     />
                   </div>
+
                   <div className="space-y-1">
-                    <label htmlFor="admin-prop-city" className="text-xs font-bold uppercase tracking-wider text-stone-700">City *</label>
-                    <input
-                      id="admin-prop-city"
-                      type="text"
+                    <label htmlFor="admin-prop-description" className="text-xs font-bold uppercase tracking-wider text-stone-700">Description *</label>
+                    <textarea
+                      id="admin-prop-description"
+                      rows={3}
                       required
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                      placeholder="e.g. Bengaluru"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold focus:outline-none focus:border-[#14532D]"
+                      placeholder="Provide a detailed overview of the property, surroundings, and amenities..."
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-state" className="text-xs font-bold uppercase tracking-wider text-stone-700">State *</label>
-                    <input
-                      id="admin-prop-state"
-                      type="text"
-                      required
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                      placeholder="e.g. Karnataka"
-                    />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-purpose" className="text-xs font-bold uppercase tracking-wider text-stone-700">Purpose *</label>
+                      <select
+                        id="admin-prop-purpose"
+                        value={formData.purpose}
+                        onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      >
+                        <option value="sale">For Sale (Outright)</option>
+                        <option value="rent">For Rent (Monthly Lease)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-type" className="text-xs font-bold uppercase tracking-wider text-stone-700">Typology *</label>
+                      <select
+                        id="admin-prop-type"
+                        value={formData.propertyType}
+                        onChange={(e) => setFormData({ ...formData, propertyType: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      >
+                        <option value="flat">Flat</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="villa">Villa</option>
+                        <option value="bungalow">Bungalow</option>
+                        <option value="house">House</option>
+                        <option value="penthouse">Penthouse</option>
+                        <option value="commercial">Commercial Workspace</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-status" className="text-xs font-bold uppercase tracking-wider text-stone-700">Availability Status *</label>
+                      <select
+                        id="admin-prop-status"
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      >
+                        <option value="available">Available</option>
+                        <option value="sold">Sold</option>
+                        <option value="rented">Rented</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-bedrooms" className="text-xs font-bold uppercase tracking-wider text-stone-700">Bedrooms</label>
-                    <input
-                      id="admin-prop-bedrooms"
-                      type="number"
-                      min={0}
-                      value={formData.bedrooms}
-                      onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-bathrooms" className="text-xs font-bold uppercase tracking-wider text-stone-700">Bathrooms</label>
-                    <input
-                      id="admin-prop-bathrooms"
-                      type="number"
-                      min={0}
-                      value={formData.bathrooms}
-                      onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-area" className="text-xs font-bold uppercase tracking-wider text-stone-700">Area (sq.ft) *</label>
-                    <input
-                      id="admin-prop-area"
-                      type="number"
-                      required
-                      min={10}
-                      value={formData.area}
-                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    />
-                  </div>
-                </div>
+                {/* 2. PRICING INTELLIGENCE */}
+                <div className="space-y-3 pb-4 border-b border-stone-200">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                    2. Pricing Intelligence
+                  </span>
 
-                {/* Image Upload & URL Section with Live Preview */}
-                <div className="space-y-2 p-4 bg-stone-50 rounded-lg border border-stone-200">
-                  <label htmlFor="admin-prop-image" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">Property Image *</label>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <label htmlFor="admin-prop-file-upload" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-stone-300 text-xs font-bold text-stone-700 shadow-xs hover:bg-stone-50 cursor-pointer">
-                          <Upload className="w-3.5 h-3.5 text-[#14532D]" />
-                          {uploadingImage ? 'Uploading...' : 'Upload Image File'}
-                        </label>
-                        <input
-                          id="admin-prop-file-upload"
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp"
-                          onChange={handleFileUpload}
-                          disabled={uploadingImage}
-                          className="sr-only"
-                        />
-                        <span className="text-xs text-stone-500">Max 5MB</span>
-                      </div>
-
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-price" className="text-xs font-bold uppercase tracking-wider text-stone-700">
+                        {formData.purpose === 'rent' ? 'Monthly Rental Price (INR) *' : 'Sale Price (INR) *'}
+                      </label>
                       <input
-                        id="admin-prop-image"
+                        id="admin-prop-price"
+                        type="number"
+                        required
+                        min={0}
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder={formData.purpose === 'rent' ? "e.g. 45000" : "e.g. 6500000"}
+                      />
+                    </div>
+
+                    <div className="p-3 bg-stone-50 rounded-md border border-stone-200/80 flex flex-col justify-center text-xs">
+                      <span className="text-stone-500 font-bold uppercase tracking-wider text-[11px]">Formatted Valuation</span>
+                      <span className="font-serif text-lg font-bold text-stone-900 mt-0.5">
+                        {formData.price ? formatPrice(Number(formData.price), formData.purpose) : '₹0'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. AREA & SPATIAL DIMENSIONS */}
+                <div className="space-y-3 pb-4 border-b border-stone-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                      3. Spatial Dimensions & Area Intelligence (sq.ft)
+                    </span>
+                    <span className="text-[11px] text-stone-500">RERA Carpet Area takes calculation precedence</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-carpet-area" className="text-xs font-bold uppercase tracking-wider text-[#14532D]">
+                        Carpet Area (sq.ft)
+                      </label>
+                      <input
+                        id="admin-prop-carpet-area"
+                        type="number"
+                        min={0}
+                        value={formData.carpetArea}
+                        onChange={(e) => setFormData({ ...formData, carpetArea: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-emerald-300 bg-emerald-50/20 text-xs font-semibold"
+                        placeholder="e.g. 860"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-builtup-area" className="text-xs font-bold uppercase tracking-wider text-stone-700">
+                        Built-Up Area (sq.ft)
+                      </label>
+                      <input
+                        id="admin-prop-builtup-area"
+                        type="number"
+                        min={0}
+                        value={formData.builtUpArea}
+                        onChange={(e) => setFormData({ ...formData, builtUpArea: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. 980"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-super-area" className="text-xs font-bold uppercase tracking-wider text-stone-700">
+                        Super Built-Up (sq.ft)
+                      </label>
+                      <input
+                        id="admin-prop-super-area"
+                        type="number"
+                        min={0}
+                        value={formData.superBuiltUpArea}
+                        onChange={(e) => setFormData({ ...formData, superBuiltUpArea: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. 1100"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-area" className="text-xs font-bold uppercase tracking-wider text-stone-700">
+                        Total Area (sq.ft) *
+                      </label>
+                      <input
+                        id="admin-prop-area"
+                        type="number"
+                        required
+                        min={10}
+                        value={formData.area}
+                        onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. 1100"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. PROPERTY SPECIFICATIONS */}
+                <div className="space-y-3 pb-4 border-b border-stone-200">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                    4. Property Specifications ({formData.propertyType === 'commercial' ? 'Commercial Workspace' : 'Residential'})
+                  </span>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {formData.propertyType !== 'commercial' ? (
+                      <div className="space-y-1">
+                        <label htmlFor="admin-prop-bedrooms" className="text-xs font-bold uppercase tracking-wider text-stone-700">Bedrooms</label>
+                        <input
+                          id="admin-prop-bedrooms"
+                          type="number"
+                          min={0}
+                          value={formData.bedrooms}
+                          onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
+                          className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        />
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold uppercase tracking-wider text-stone-500 block">Work Typology</span>
+                        <p className="p-2.5 bg-stone-50 rounded-md border border-stone-200 text-xs font-semibold text-stone-700">Office Suite</p>
+                      </div>
+                    )}
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-bathrooms" className="text-xs font-bold uppercase tracking-wider text-stone-700">
+                        {formData.propertyType === 'commercial' ? 'Washrooms' : 'Bathrooms'}
+                      </label>
+                      <input
+                        id="admin-prop-bathrooms"
+                        type="number"
+                        min={0}
+                        value={formData.bathrooms}
+                        onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-floor-num" className="text-xs font-bold uppercase tracking-wider text-stone-700">Floor Level</label>
+                      <input
+                        id="admin-prop-floor-num"
+                        type="number"
+                        min={-2}
+                        value={formData.floorNumber}
+                        onChange={(e) => setFormData({ ...formData, floorNumber: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. 4 (0 = Ground)"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-total-floors" className="text-xs font-bold uppercase tracking-wider text-stone-700">Total Floors</label>
+                      <input
+                        id="admin-prop-total-floors"
+                        type="number"
+                        min={0}
+                        value={formData.totalFloors}
+                        onChange={(e) => setFormData({ ...formData, totalFloors: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. 12"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-furnishing" className="text-xs font-bold uppercase tracking-wider text-stone-700">Furnishing</label>
+                      <select
+                        id="admin-prop-furnishing"
+                        value={formData.furnishing}
+                        onChange={(e) => setFormData({ ...formData, furnishing: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      >
+                        <option value="unfurnished">Unfurnished</option>
+                        <option value="semi-furnished">Semi-Furnished</option>
+                        <option value="fully-furnished">Fully Furnished</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-facing" className="text-xs font-bold uppercase tracking-wider text-stone-700">Facing / Orientation</label>
+                      <select
+                        id="admin-prop-facing"
+                        value={formData.facing}
+                        onChange={(e) => setFormData({ ...formData, facing: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      >
+                        <option value="">Unspecified</option>
+                        <option value="east">East Facing</option>
+                        <option value="north">North Facing</option>
+                        <option value="north-east">North-East Facing</option>
+                        <option value="west">West Facing</option>
+                        <option value="south">South Facing</option>
+                        <option value="south-east">South-East Facing</option>
+                        <option value="north-west">North-West Facing</option>
+                        <option value="south-west">South-West Facing</option>
+                      </select>
+                    </div>
+
+                    {formData.propertyType !== 'commercial' && (
+                      <div className="space-y-1">
+                        <label htmlFor="admin-prop-balconies" className="text-xs font-bold uppercase tracking-wider text-stone-700">Balconies</label>
+                        <input
+                          id="admin-prop-balconies"
+                          type="number"
+                          min={0}
+                          value={formData.balconies}
+                          onChange={(e) => setFormData({ ...formData, balconies: e.target.value })}
+                          className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                          placeholder="e.g. 2"
+                        />
+                      </div>
+                    )}
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-parking" className="text-xs font-bold uppercase tracking-wider text-stone-700">Parking Bays</label>
+                      <input
+                        id="admin-prop-parking"
+                        type="number"
+                        min={0}
+                        value={formData.parkingSpaces}
+                        onChange={(e) => setFormData({ ...formData, parkingSpaces: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. 1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. LOCATION */}
+                <div className="space-y-3 pb-4 border-b border-stone-200">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                    5. Location & Enclave
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-address" className="text-xs font-bold uppercase tracking-wider text-stone-700">Address *</label>
+                      <input
+                        id="admin-prop-address"
                         type="text"
                         required
-                        placeholder="Or enter image URL..."
-                        value={formData.image}
-                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                        className="w-full p-2.5 rounded-md border border-stone-200 bg-white text-xs font-semibold"
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="Street / Locality"
                       />
-                      {uploadError && (
-                        <p className="text-xs text-rose-500 font-medium mt-1">{uploadError}</p>
-                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-city" className="text-xs font-bold uppercase tracking-wider text-stone-700">City *</label>
+                      <input
+                        id="admin-prop-city"
+                        type="text"
+                        required
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. Bengaluru"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-state" className="text-xs font-bold uppercase tracking-wider text-stone-700">State *</label>
+                      <input
+                        id="admin-prop-state"
+                        type="text"
+                        required
+                        value={formData.state}
+                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. Karnataka"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. RERA & VERIFICATION WORKFLOW */}
+                <div className="space-y-3 pb-4 border-b border-stone-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                      6. RERA & Verification Details
+                    </span>
+                    <span className="text-[11px] text-stone-500">Only verified status grants the public Verified badge</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-rera-num" className="text-xs font-bold uppercase tracking-wider text-stone-700">RERA Registration Number</label>
+                      <input
+                        id="admin-prop-rera-num"
+                        type="text"
+                        value={formData.reraNumber}
+                        onChange={(e) => setFormData({ ...formData, reraNumber: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. PRM/KA/RERA/1251/..."
+                      />
                     </div>
 
-                    {/* Live Preview Thumbnail */}
-                    <div className="flex items-center justify-center bg-stone-200 rounded-md overflow-hidden h-28 border border-stone-300">
-                      {formData.image ? (
-                        <img
-                          src={formData.image}
-                          alt="Thumbnail preview"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800';
-                          }}
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-rera-auth" className="text-xs font-bold uppercase tracking-wider text-stone-700">Registration Authority / State</label>
+                      <input
+                        id="admin-prop-rera-auth"
+                        type="text"
+                        value={formData.reraAuthority}
+                        onChange={(e) => setFormData({ ...formData, reraAuthority: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="e.g. Karnataka RERA, MahaRERA"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-verif-status" className="text-xs font-bold uppercase tracking-wider text-stone-700">Verification Status</label>
+                      <select
+                        id="admin-prop-verif-status"
+                        value={formData.verificationStatus}
+                        onChange={(e) => setFormData({ ...formData, verificationStatus: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      >
+                        <option value="unverified">Unverified Listing</option>
+                        <option value="self_reported">Self-Reported by Owner</option>
+                        <option value="verified">Verified Official Registration</option>
+                        <option value="rejected">Rejected / Invalid</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 7. MEDIA GALLERY & FLOOR PLANS */}
+                <div className="space-y-3 pb-4 border-b border-stone-200">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                    7. Photography Gallery & Floor Plans
+                  </span>
+
+                  <div className="space-y-2 p-4 bg-stone-50 rounded-lg border border-stone-200">
+                    <label htmlFor="admin-prop-image" className="text-xs font-bold uppercase tracking-wider text-stone-700 block">Primary Monograph Image *</label>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <label htmlFor="admin-prop-file-upload" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-stone-300 text-xs font-bold text-stone-700 shadow-xs hover:bg-stone-50 cursor-pointer">
+                            <Upload className="w-3.5 h-3.5 text-[#14532D]" />
+                            {uploadingImage ? 'Uploading...' : 'Upload Image File'}
+                          </label>
+                          <input
+                            id="admin-prop-file-upload"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleFileUpload}
+                            disabled={uploadingImage}
+                            className="sr-only"
+                          />
+                          <span className="text-xs text-stone-500">Max 5MB</span>
+                        </div>
+
+                        <input
+                          id="admin-prop-image"
+                          type="text"
+                          required
+                          placeholder="Or enter image URL..."
+                          value={formData.image}
+                          onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                          className="w-full p-2.5 rounded-md border border-stone-200 bg-white text-xs font-semibold"
                         />
-                      ) : (
-                        <span className="text-xs text-stone-400">No Image Preview</span>
-                      )}
+                        {uploadError && (
+                          <p className="text-xs text-rose-500 font-medium mt-1">{uploadError}</p>
+                        )}
+                      </div>
+
+                      {/* Live Preview Thumbnail */}
+                      <div className="flex items-center justify-center bg-stone-200 rounded-md overflow-hidden h-28 border border-stone-300">
+                        {formData.image ? (
+                          <img
+                            src={formData.image}
+                            alt="Thumbnail preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800';
+                            }}
+                          />
+                        ) : (
+                          <span className="text-xs text-stone-400">No Image Preview</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-extra-images" className="text-xs font-bold uppercase tracking-wider text-stone-700">Additional Gallery Images (1 per line)</label>
+                      <textarea
+                        id="admin-prop-extra-images"
+                        rows={3}
+                        value={formData.images}
+                        onChange={(e) => setFormData({ ...formData, images: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="https://images.unsplash.com/...&#10;https://images.unsplash.com/..."
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-floor-plan" className="text-xs font-bold uppercase tracking-wider text-stone-700">Floor Plan Image URL</label>
+                      <textarea
+                        id="admin-prop-floor-plan"
+                        rows={3}
+                        value={formData.floorPlan}
+                        onChange={(e) => setFormData({ ...formData, floorPlan: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                        placeholder="https://images.unsplash.com/photo-1600585154526... (Architectural layout schematic)"
+                      />
                     </div>
                   </div>
                 </div>
 
-                {/* Owner Information */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-owner-name" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Name *</label>
-                    <input
-                      id="admin-prop-owner-name"
-                      type="text"
-                      required
-                      value={formData.ownerName}
-                      onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-owner-email" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Email *</label>
-                    <input
-                      id="admin-prop-owner-email"
-                      type="email"
-                      required
-                      value={formData.ownerEmail}
-                      onChange={(e) => setFormData({ ...formData, ownerEmail: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="admin-prop-owner-phone" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Phone *</label>
-                    <input
-                      id="admin-prop-owner-phone"
-                      type="tel"
-                      required
-                      value={formData.ownerPhone}
-                      onChange={(e) => setFormData({ ...formData, ownerPhone: e.target.value })}
-                      className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
-                    />
-                  </div>
-                </div>
+                {/* 8. OWNER REPRESENTATION & FEATURED */}
+                <div className="space-y-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                    8. Direct Owner Representation
+                  </span>
 
-                <div className="flex items-center gap-2 pt-2">
-                  <input
-                    type="checkbox"
-                    id="featuredToggle"
-                    checked={formData.featured}
-                    onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 text-[#14532D] rounded-sm cursor-pointer"
-                  />
-                  <label htmlFor="featuredToggle" className="text-xs font-bold text-stone-800 cursor-pointer">
-                    Highlight as Featured Property on Homepage
-                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-owner-name" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Name *</label>
+                      <input
+                        id="admin-prop-owner-name"
+                        type="text"
+                        required
+                        value={formData.ownerName}
+                        onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-owner-email" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Email *</label>
+                      <input
+                        id="admin-prop-owner-email"
+                        type="email"
+                        required
+                        value={formData.ownerEmail}
+                        onChange={(e) => setFormData({ ...formData, ownerEmail: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="admin-prop-owner-phone" className="text-xs font-bold uppercase tracking-wider text-stone-700">Owner Phone *</label>
+                      <input
+                        id="admin-prop-owner-phone"
+                        type="tel"
+                        required
+                        value={formData.ownerPhone}
+                        onChange={(e) => setFormData({ ...formData, ownerPhone: e.target.value })}
+                        className="w-full p-2.5 rounded-md border border-stone-200 text-xs font-semibold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="featuredToggle"
+                      checked={formData.featured}
+                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                      className="w-4 h-4 text-[#14532D] rounded-sm cursor-pointer"
+                    />
+                    <label htmlFor="featuredToggle" className="text-xs font-bold text-stone-800 cursor-pointer">
+                      Highlight as Featured Property on Homepage Monograph Spread
+                    </label>
+                  </div>
                 </div>
 
                 <div className="pt-4 flex items-center justify-end gap-3 border-t border-stone-100">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 rounded-md border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50"
+                    className="px-5 py-2.5 rounded-md border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50 cursor-pointer"
                   >
                     Cancel
                   </button>

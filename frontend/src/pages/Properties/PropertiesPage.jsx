@@ -51,6 +51,7 @@ export const PropertiesPage = () => {
     const urlType = searchParams.get('propertyType');
     const urlMinPrice = searchParams.get('minPrice');
     const urlMaxPrice = searchParams.get('maxPrice');
+    const urlVerification = searchParams.get('verificationStatus');
 
     if (urlSearch && urlSearch.trim()) query.search = urlSearch.trim();
     if (urlCity) query.city = urlCity;
@@ -58,6 +59,7 @@ export const PropertiesPage = () => {
     if (urlType) query.propertyType = urlType;
     if (urlMinPrice) query.minPrice = urlMinPrice;
     if (urlMaxPrice) query.maxPrice = urlMaxPrice;
+    if (urlVerification) query.verificationStatus = urlVerification;
 
     try {
       const res = await propertyService.getProperties(query);
@@ -83,15 +85,24 @@ export const PropertiesPage = () => {
     fetchFilteredProperties();
   }, [fetchFilteredProperties]);
 
-  // Push filter state to URL
+  // Push filter state to URL with validation guard
   const applyFilters = () => {
     const params = new URLSearchParams();
     if (searchInput.trim()) params.set('search', searchInput.trim());
     if (city) params.set('city', city);
     if (purpose) params.set('purpose', purpose);
     if (propertyType) params.set('propertyType', propertyType);
-    if (minPrice) params.set('minPrice', minPrice);
-    if (maxPrice) params.set('maxPrice', maxPrice);
+
+    // Guard: ensure minPrice <= maxPrice if both are populated
+    if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
+      params.set('minPrice', maxPrice);
+      params.set('maxPrice', minPrice);
+      setMinPrice(maxPrice);
+      setMaxPrice(minPrice);
+    } else {
+      if (minPrice) params.set('minPrice', minPrice);
+      if (maxPrice) params.set('maxPrice', maxPrice);
+    }
 
     setSearchParams(params);
     setMobileFilterOpen(false);

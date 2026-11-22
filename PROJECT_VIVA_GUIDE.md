@@ -386,17 +386,22 @@ Visit **`http://localhost:3000`** in your browser.
 
 ## 17. Step-by-Step Viva Demonstration Sequence
 
-1. **Homepage & Visual Design Walkthrough (`/`):**
-   - Highlight the architectural theme, Plus Jakarta Sans typography, and warm `#FAFAF8` color palette.
-   - Demonstrate the hero search bar filtering by Purpose (Buy vs Rent), City (e.g. Bengaluru, Mumbai, Delhi-NCR), and Property Type.
-2. **Catalog & ReDoS-Protected Keyword Search (`/properties`):**
-   - Type `"Whitefield"` or `"Villa"` into the search bar. Show instant keyword filtering.
-   - Demonstrate sorting (Price: Low to High, High to Low, Area).
-3. **Property Details & Dynamic Features (`/properties/:id`):**
+1. **Homepage & Architectural Editorial Monograph Walkthrough (`/`):**
+   - Highlight the architectural publication theme: Cormorant Garamond serif display typography, Plus Jakarta Sans interface font, and unbleached museum canvas palette (`#FBFBF9`).
+   - Demonstrate the asymmetric hero layout: left narrative search console with Buy/Rent segmented switch; right framed lead architectural photo with dynamic property caption card.
+   - Show the 2/3 + 1/3 asymmetric featured spread and data-driven collections.
+2. **Catalog & Two-Way URL Synchronization (`/properties`):**
+   - Type `"Whitefield"` or `"Villa"` into the search bar. Show instant keyword filtering and browser URL synchronization (`useSearchParams`).
+   - Demonstrate sorting (Price: Low to High, High to Low, Area) and active filter dismiss pills.
+3. **Property Details & Real Estate Domain Intelligence (`/properties/:id`):**
    - Click on any property (e.g. "Spacious 2BHK Flat in Whitefield").
-   - Point out the verified owner card, dynamic amenities breakdown, and property status badge.
+   - Point out the **Multi-Image Gallery & Floor Plan Switcher**: switch between primary photograph, interior perspectives, and architectural layout schematic.
+   - Point out the **Certified Dimensional Breakdown**: Carpet Area (RERA primary), Built-up Area, and Super Built-up Area with space efficiency ratio.
+   - Point out the **Analytical Pricing**: Total price alongside calculated ₹/sq.ft with explicit basis attribution (Carpet Area vs Total Area).
+   - Point out the **Factual RERA & Regulatory Compliance Card**: Registration ID, Regulatory State Authority, and Verified status.
+   - Show **Adaptive Specifications**: On residential properties, displays BHK and Baths; on commercial offices (DLF Cyber City), cleanly suppresses bedrooms and displays Usable Work Area and Washrooms without misleading `0 Beds`.
 4. **Live Customer Inquiry Submission:**
-   - Click **"Contact Owner"**.
+   - Click **"Inquire With Owner Directly"**.
    - Note how the sender name, email, and phone are pre-filled if logged in (or enter custom guest details).
    - Enter a message and click **"Send Direct Inquiry"**.
    - Note the real-time database confirmation banner.
@@ -409,14 +414,15 @@ Visit **`http://localhost:3000`** in your browser.
    - Access the Admin Console via the profile dropdown.
    - Switch to the **"Customer Leads & Inquiries"** tab to verify that the message submitted in Step 4 is recorded with property context and contact info.
    - Change inquiry status to `"Contacted"` or `"Resolved"`.
-7. **Property Creation & Image Upload:**
+7. **Property Management with P2 Domain Intelligence:**
    - Switch back to the **"Property Catalog"** tab and click **"Add Property"**.
-   - Click **"Upload Image File"** to demonstrate local file upload with real-time thumbnail preview.
+   - Review the **8 organized monograph sections**: Basic Info, Pricing, Spatial Dimensions (Carpet/Built-Up/Super), Specifications, Location, RERA & Verification Details, Media Gallery & Floor Plans, and Direct Owner Representation.
+   - Demonstrate local image file upload with real-time thumbnail preview.
    - Fill in details, toggle `"Highlight as Featured"`, and save.
    - Return to the homepage to confirm that the new property appears in the live catalog!
-8. **Automated Testing Proof:**
+8. **Automated Testing & Security Proof:**
    - Open a terminal and run `npm test` inside `backend`.
-   - Show the examiner the **34 passed tests** verifying security, auth, validation, and error handling.
+   - Show the examiner the **45 passed tests (100% pass rate)** verifying security, auth, validation, ReDoS prevention, area calculations, pricing intelligence, and specification adaptation.
 
 ---
 

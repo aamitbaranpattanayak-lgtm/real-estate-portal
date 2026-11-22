@@ -137,6 +137,14 @@ describe("HAVEN Real Estate Portal — API & Security Test Suite", () => {
       expect(res.body.success).toBe(false);
     });
 
+    it("PUT /api/properties/:id should block unauthenticated updates with 401", async () => {
+      const res = await request(app)
+        .put("/api/properties/507f1f77bcf86cd799439011")
+        .send({ price: 7500000 });
+      expect(res.statusCode).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
+
     it("DELETE /api/properties/:id should block unauthenticated deletion with 401", async () => {
       const res = await request(app).delete("/api/properties/507f1f77bcf86cd799439011");
       expect(res.statusCode).toBe(401);

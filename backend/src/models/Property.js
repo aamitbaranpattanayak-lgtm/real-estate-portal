@@ -81,11 +81,120 @@ const propertySchema = new mongoose.Schema(
       min: [0, "Area cannot be negative"],
     },
 
+    // P2 Area Intelligence (sq.ft)
+    carpetArea: {
+      type: Number,
+      min: [0, "Carpet area cannot be negative"],
+      default: null,
+    },
+
+    builtUpArea: {
+      type: Number,
+      min: [0, "Built-up area cannot be negative"],
+      default: null,
+    },
+
+    superBuiltUpArea: {
+      type: Number,
+      min: [0, "Super built-up area cannot be negative"],
+      default: null,
+    },
+
     image: {
       type: String,
       required: [true, "Property image URL is required"],
       default:
         "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format&fit=crop",
+    },
+
+    // P2 Multi-Image Gallery & Architectural Floor Plans
+    images: {
+      type: [String],
+      default: [],
+    },
+
+    floorPlan: {
+      type: String,
+      default: null,
+    },
+
+    // P2 Architectural Specifications
+    floorNumber: {
+      type: Number,
+      min: [-2, "Floor number cannot be below basement levels (-2)"],
+      default: null,
+    },
+
+    totalFloors: {
+      type: Number,
+      min: [0, "Total floors cannot be negative"],
+      default: null,
+    },
+
+    furnishing: {
+      type: String,
+      enum: ["unfurnished", "semi-furnished", "fully-furnished"],
+      default: undefined,
+    },
+
+    facing: {
+      type: String,
+      enum: [
+        "north",
+        "south",
+        "east",
+        "west",
+        "north-east",
+        "north-west",
+        "south-east",
+        "south-west",
+      ],
+      default: undefined,
+    },
+
+    balconies: {
+      type: Number,
+      min: [0, "Balconies cannot be negative"],
+      default: null,
+    },
+
+    parkingSpaces: {
+      type: Number,
+      min: [0, "Parking spaces cannot be negative"],
+      default: null,
+    },
+
+    // P2 RERA & Verification Workflow
+    reraNumber: {
+      type: String,
+      trim: true,
+      maxlength: [100, "RERA number cannot exceed 100 characters"],
+      default: null,
+    },
+
+    reraAuthority: {
+      type: String,
+      trim: true,
+      maxlength: [100, "RERA authority cannot exceed 100 characters"],
+      default: null,
+    },
+
+    verificationStatus: {
+      type: String,
+      enum: ["unverified", "self_reported", "verified", "rejected"],
+      default: "unverified",
+    },
+
+    verificationDate: {
+      type: Date,
+      default: null,
+    },
+
+    verificationNotes: {
+      type: String,
+      trim: true,
+      maxlength: [1000, "Verification notes cannot exceed 1000 characters"],
+      default: null,
     },
 
     ownerName: {

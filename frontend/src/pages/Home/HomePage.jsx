@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { propertyService } from '../../services/propertyService';
 import { PropertyCard } from '../../components/property/PropertyCard';
 import { SkeletonGrid } from '../../components/common/Skeleton';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice, calculatePricingMetrics, formatPropertySpecifications } from '../../utils/formatters';
 import { 
   Search, 
   MapPin, 
@@ -212,15 +212,15 @@ export const HomePage = () => {
               <div className="pt-2 flex flex-wrap items-center gap-6 text-xs text-stone-600 font-medium">
                 <div className="flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 text-[#14532D]" />
-                  <span>Direct Owner Contact</span>
+                  <span>Direct Owner Inquiries</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 text-[#14532D]" />
-                  <span>Certified Square Footage</span>
+                  <span>Documented Spatial Metrics</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 text-[#14532D]" />
-                  <span>Zero Intermediary Clutter</span>
+                  <span>Zero Intermediary Markups</span>
                 </div>
               </div>
 
@@ -250,7 +250,7 @@ export const HomePage = () => {
                           {leadFeatured.title}
                         </h2>
                         <p className="text-xs text-stone-500 font-medium">
-                          {leadFeatured.city} • {leadFeatured.bedrooms} Beds • {leadFeatured.area?.toLocaleString('en-IN')} sq.ft
+                          {leadFeatured.city} • {formatPropertySpecifications(leadFeatured).ribbonText}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
@@ -345,11 +345,19 @@ export const HomePage = () => {
                       <span className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
                         {formatPrice(leadFeatured.price, leadFeatured.purpose)}
                       </span>
-                      {leadFeatured.area && (
-                        <p className="text-xs text-stone-500 font-medium">
-                          ₹{Math.round(leadFeatured.price / leadFeatured.area).toLocaleString('en-IN')} / sq.ft
-                        </p>
-                      )}
+                      {(() => {
+                        const leadMetrics = calculatePricingMetrics(
+                          leadFeatured.price,
+                          leadFeatured.purpose,
+                          leadFeatured.carpetArea,
+                          leadFeatured.area
+                        );
+                        return leadMetrics.pricePerSqFt ? (
+                          <p className="text-xs text-stone-500 font-medium">
+                            ₹{leadMetrics.pricePerSqFt.toLocaleString('en-IN')} {leadMetrics.unit} ({leadMetrics.basis})
+                          </p>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
 
@@ -359,11 +367,7 @@ export const HomePage = () => {
 
                   <div className="pt-2 flex items-center justify-between">
                     <div className="flex items-center gap-3 text-xs text-stone-700 font-medium">
-                      <span>{leadFeatured.bedrooms} Bedrooms</span>
-                      <span className="text-stone-300">•</span>
-                      <span>{leadFeatured.bathrooms} Bathrooms</span>
-                      <span className="text-stone-300">•</span>
-                      <span>{leadFeatured.area?.toLocaleString('en-IN')} sq.ft</span>
+                      <span>{formatPropertySpecifications(leadFeatured).ribbonText}</span>
                     </div>
 
                     <Link

@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFavorites } from '../../context/FavoriteContext';
-import { formatPrice } from '../../utils/formatters';
-import { Heart, MapPin, ArrowUpRight } from 'lucide-react';
+import { 
+  formatPrice, 
+  calculatePricingMetrics, 
+  formatPropertySpecifications,
+  resolveVerificationBadge 
+} from '../../utils/formatters';
+import { Heart, MapPin, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format&fit=crop";
@@ -24,10 +29,17 @@ export const PropertyCard = ({ property }) => {
     }
   };
 
-  // Price per square foot calculation for sale properties
-  const pricePerSqFt = property.area && property.purpose === 'sale' && property.price
-    ? Math.round(property.price / property.area)
-    : null;
+  // P2 Area & Pricing Intelligence
+  const pricingMetrics = calculatePricingMetrics(
+    property.price,
+    property.purpose,
+    property.carpetArea,
+    property.area
+  );
+
+  // P2 Adaptive Specifications & RERA Workflow
+  const specs = formatPropertySpecifications(property);
+  const verification = resolveVerificationBadge(property.verificationStatus, property.reraNumber);
 
   return (
     <motion.article
@@ -59,7 +71,7 @@ export const PropertyCard = ({ property }) => {
 
         {/* Top Badges & Heart Action */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-          <div className="flex items-center gap-1.5 pointer-events-auto">
+          <div className="flex flex-wrap items-center gap-1.5 pointer-events-auto">
             {property.featured && (
               <span className="bg-[#14532D] text-white text-xs font-semibold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-xs">
                 Featured
@@ -68,6 +80,12 @@ export const PropertyCard = ({ property }) => {
             <span className="bg-[#FBFBF9]/95 text-stone-900 text-xs font-semibold px-2.5 py-0.5 rounded-sm uppercase tracking-wider shadow-xs border border-stone-200/90">
               {property.purpose === 'sale' ? 'For Sale' : 'For Rent'}
             </span>
+            {verification.isVerified && (
+              <span className="bg-emerald-800 text-white text-xs font-semibold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-xs flex items-center gap-1" title="RERA Verified Property">
+                <ShieldCheck className="w-3 h-3" />
+                Verified
+              </span>
+            )}
             {property.status && property.status !== 'available' && (
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-xs ${
                 property.status === 'sold'
@@ -105,20 +123,21 @@ export const PropertyCard = ({ property }) => {
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         
         <div className="space-y-2">
-          {/* Price & Rate Presentation */}
+          {/* Price & Rate Presentation — Single clean rental period */}
           <div className="flex items-baseline justify-between gap-2">
             <div>
               <span className="font-serif text-2xl font-bold text-stone-900 tracking-tight">
                 {formatPrice(property.price, property.purpose)}
               </span>
-              {property.purpose === 'rent' && (
-                <span className="text-xs text-stone-500 font-medium ml-1">/ month</span>
-              )}
             </div>
 
-            {pricePerSqFt ? (
-              <span className="text-xs text-stone-500 font-medium" title="Calculated rate per square foot">
-                ₹{pricePerSqFt.toLocaleString('en-IN')}/sq.ft
+            {pricingMetrics.pricePerSqFt ? (
+              <span 
+                className="text-xs text-stone-500 font-medium" 
+                title={`Calculated based on ${pricingMetrics.basis}`}
+              >
+                ₹{pricingMetrics.pricePerSqFt.toLocaleString('en-IN')}{pricingMetrics.unit === '₹/sq.ft/mo' ? '/sq.ft/mo' : '/sq.ft'}
+                {property.carpetArea ? ' (Carpet)' : ''}
               </span>
             ) : (
               <span className="text-xs font-semibold uppercase tracking-wider text-stone-500">
@@ -144,14 +163,10 @@ export const PropertyCard = ({ property }) => {
           </p>
         </div>
 
-        {/* Monograph Specifications Ribbon */}
+        {/* Monograph Adaptive Specifications Ribbon */}
         <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-700">
           <div className="flex items-center gap-2 font-medium">
-            <span>{property.bedrooms} Beds</span>
-            <span className="text-stone-300">•</span>
-            <span>{property.bathrooms} Baths</span>
-            <span className="text-stone-300">•</span>
-            <span>{property.area?.toLocaleString('en-IN')} sq.ft</span>
+            <span>{specs.ribbonText}</span>
           </div>
         </div>
 
@@ -164,7 +179,7 @@ export const PropertyCard = ({ property }) => {
               ? 'text-amber-700'
               : 'text-[#14532D]'
           }`}>
-            {property.status === 'available' ? 'Verified Direct' : property.status || 'Available'}
+            {property.status === 'available' ? 'Available' : property.status || 'Available'}
           </span>
 
           <Link

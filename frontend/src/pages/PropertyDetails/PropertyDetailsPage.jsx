@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { propertyService } from '../../services/propertyService';
 import { useFavorites } from '../../context/FavoriteContext';
-import { formatPrice } from '../../utils/formatters';
+import { 
+  formatPrice, 
+  calculatePricingMetrics, 
+  resolveVerificationBadge,
+  formatPropertySpecifications,
+  capitalize 
+} from '../../utils/formatters';
 import { ContactOwnerModal } from '../../components/property/ContactOwnerModal';
 import { PropertyCard } from '../../components/property/PropertyCard';
 import { 
@@ -20,7 +26,13 @@ import {
   Phone,
   Mail,
   Calendar,
-  Sparkles
+  Sparkles,
+  Compass,
+  Layers,
+  Car,
+  FileText,
+  AlertCircle,
+  Building
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -40,6 +52,10 @@ export const PropertyDetailsPage = () => {
   const [contactData, setContactData] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  // Gallery view state
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0); // index in allImages or 'floorPlan'
+  const [viewingFloorPlan, setViewingFloorPlan] = useState(false);
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
@@ -79,6 +95,8 @@ export const PropertyDetailsPage = () => {
 
     if (id) {
       fetchPropertyDetails();
+      setActiveMediaIndex(0);
+      setViewingFloorPlan(false);
     }
   }, [id]);
 
@@ -97,11 +115,6 @@ export const PropertyDetailsPage = () => {
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
-
-  // Analytical Price per sq.ft calculation
-  const pricePerSqFt = property?.area && property.price
-    ? Math.round(property.price / property.area)
-    : null;
 
   if (loading) {
     return (
@@ -134,6 +147,34 @@ export const PropertyDetailsPage = () => {
       </div>
     );
   }
+
+  // P2 Pricing & Area Intelligence Calculations
+  const pricingMetrics = calculatePricingMetrics(
+    property.price,
+    property.purpose,
+    property.carpetArea,
+    property.area
+  );
+
+  // P2 Adaptive Specifications & RERA Workflow
+  const specs = formatPropertySpecifications(property);
+  const verification = resolveVerificationBadge(property.verificationStatus, property.reraNumber);
+
+  // Media Gallery Assembly
+  const galleryImages = [
+    property.image,
+    ...(Array.isArray(property.images) ? property.images : [])
+  ].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
+
+  const currentDisplayImage = viewingFloorPlan
+    ? property.floorPlan || DEFAULT_IMAGE
+    : galleryImages[activeMediaIndex] || property.image || DEFAULT_IMAGE;
+
+  // Space efficiency ratio (Carpet Area vs Super Built-up / General Area)
+  const totalAreaBasis = property.superBuiltUpArea || property.area;
+  const spatialEfficiency = property.carpetArea && totalAreaBasis
+    ? Math.round((property.carpetArea / totalAreaBasis) * 100)
+    : null;
 
   return (
     <div className="min-h-screen bg-[#FBFBF9] pt-28 pb-20 text-stone-900">
@@ -179,61 +220,133 @@ export const PropertyDetailsPage = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* ARCHITECTURAL IMAGE GALLERY                                              */}
+        {/* P2 ARCHITECTURAL MULTI-IMAGE GALLERY & FLOOR PLAN VIEWER                  */}
         {/* ========================================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-10">
+        <div className="space-y-3 mb-10">
           
-          {/* Main Lead Monograph Photo (8 Cols) */}
-          <div className="lg:col-span-8 relative aspect-[16/10] rounded-lg overflow-hidden border border-stone-200 shadow-sm bg-stone-100 group">
-            <img
-              src={property.image || DEFAULT_IMAGE}
-              alt={property.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
-            />
-            
-            <div className="absolute top-4 left-4 flex gap-2">
-              {property.featured && (
-                <span className="bg-[#14532D] text-white text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-xs">
-                  Featured Monograph
-                </span>
+          {/* Gallery View Controls (Media Switcher) */}
+          <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setViewingFloorPlan(false)}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                  !viewingFloorPlan
+                    ? 'bg-[#14532D] text-white shadow-xs'
+                    : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+                }`}
+              >
+                Photography Monograph ({galleryImages.length})
+              </button>
+
+              {property.floorPlan && (
+                <button
+                  type="button"
+                  onClick={() => setViewingFloorPlan(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                    viewingFloorPlan
+                      ? 'bg-[#14532D] text-white shadow-xs'
+                      : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  Architectural Floor Plan
+                </button>
               )}
-              <span className="bg-[#FBFBF9]/95 text-stone-900 text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider border border-stone-200/90 shadow-xs">
-                {property.purpose === 'sale' ? 'For Sale' : 'For Rent'}
-              </span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setLightboxOpen(true)}
-              className="absolute bottom-4 right-4 bg-white/90 hover:bg-white text-stone-800 p-2.5 rounded-md shadow-md backdrop-blur-xs transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
-              aria-label="Expand image to fullscreen lightbox"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
+            <span className="text-xs text-stone-500 font-medium hidden sm:inline">
+              {viewingFloorPlan ? 'Certified Architectural Floor Layout' : `Showing perspective ${activeMediaIndex + 1} of ${galleryImages.length}`}
+            </span>
           </div>
 
-          {/* Secondary Monograph Pair (4 Cols) */}
-          <div className="hidden lg:grid grid-rows-2 gap-4 lg:col-span-4">
-            <div className="relative rounded-lg overflow-hidden border border-stone-200 bg-stone-100 h-full">
+          {/* Main Large Viewport */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            
+            {/* Primary Viewport (8 cols) */}
+            <div className="lg:col-span-8 relative aspect-[16/10] rounded-lg overflow-hidden border border-stone-200 shadow-sm bg-stone-100 group">
               <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop"
-                alt="Interior Living Space"
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                src={currentDisplayImage}
+                alt={viewingFloorPlan ? `${property.title} Floor Plan` : property.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
               />
-              <span className="absolute bottom-3 left-3 bg-stone-900/80 text-white text-xs font-bold px-2 py-0.5 rounded-xs uppercase tracking-wider">
-                Interior
-              </span>
+              
+              <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                {property.featured && (
+                  <span className="bg-[#14532D] text-white text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-xs">
+                    Featured Monograph
+                  </span>
+                )}
+                <span className="bg-[#FBFBF9]/95 text-stone-900 text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider border border-stone-200/90 shadow-xs">
+                  {property.purpose === 'sale' ? 'For Sale' : 'For Rent'}
+                </span>
+                {verification.isVerified && (
+                  <span className="bg-emerald-800 text-white text-xs font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-xs flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    RERA Verified
+                  </span>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(true)}
+                className="absolute bottom-4 right-4 bg-white/90 hover:bg-white text-stone-800 p-2.5 rounded-md shadow-md backdrop-blur-xs transition-colors focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
+                aria-label="Expand image to fullscreen lightbox"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
             </div>
-            <div className="relative rounded-lg overflow-hidden border border-stone-200 bg-stone-100 h-full">
-              <img
-                src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&auto=format&fit=crop"
-                alt="Architectural Detailing"
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-              />
-              <span className="absolute bottom-3 left-3 bg-stone-900/80 text-white text-xs font-bold px-2 py-0.5 rounded-xs uppercase tracking-wider">
-                Elevation
-              </span>
+
+            {/* Thumbnail Strip / Secondary Views (4 cols) */}
+            <div className="lg:col-span-4 flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
+              {galleryImages.map((imgUrl, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setViewingFloorPlan(false);
+                    setActiveMediaIndex(idx);
+                  }}
+                  className={`relative rounded-md overflow-hidden border transition-all cursor-pointer aspect-[16/10] flex-shrink-0 w-32 sm:w-40 lg:w-full lg:h-32 bg-stone-100 ${
+                    !viewingFloorPlan && activeMediaIndex === idx
+                      ? 'border-[#14532D] ring-2 ring-[#14532D]'
+                      : 'border-stone-200 opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <img
+                    src={imgUrl}
+                    alt={`Perspective ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute bottom-1.5 left-1.5 bg-stone-900/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-xs uppercase tracking-wider">
+                    {idx === 0 ? 'Primary' : `Angle 0${idx + 1}`}
+                  </span>
+                </button>
+              ))}
+
+              {property.floorPlan && (
+                <button
+                  type="button"
+                  onClick={() => setViewingFloorPlan(true)}
+                  className={`relative rounded-md overflow-hidden border transition-all cursor-pointer aspect-[16/10] flex-shrink-0 w-32 sm:w-40 lg:w-full lg:h-32 bg-stone-100 ${
+                    viewingFloorPlan
+                      ? 'border-[#14532D] ring-2 ring-[#14532D]'
+                      : 'border-stone-200 opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <img
+                    src={property.floorPlan}
+                    alt="Floor Plan Thumbnail"
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute bottom-1.5 left-1.5 bg-[#14532D] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-xs uppercase tracking-wider flex items-center gap-1">
+                    <FileText className="w-2.5 h-2.5" /> Floor Plan
+                  </span>
+                </button>
+              )}
             </div>
+
           </div>
 
         </div>
@@ -277,38 +390,158 @@ export const PropertyDetailsPage = () => {
 
                 <div className="text-left sm:text-right flex-shrink-0">
                   <span className="text-xs text-stone-500 font-bold uppercase tracking-wider block">
-                    Listing Price
+                    Listing Valuation
                   </span>
                   <p className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">
                     {formatPrice(property.price, property.purpose)}
                   </p>
-                  {property.purpose === 'rent' ? (
-                    <span className="text-xs text-stone-500 font-medium">Monthly Rental</span>
-                  ) : pricePerSqFt ? (
-                    <span className="text-xs text-[#14532D] font-bold">
-                      ₹{pricePerSqFt.toLocaleString('en-IN')} / sq.ft
-                    </span>
+                  {pricingMetrics.pricePerSqFt ? (
+                    <div className="mt-1">
+                      <span className="text-xs text-[#14532D] font-bold block">
+                        ₹{pricingMetrics.pricePerSqFt.toLocaleString('en-IN')} {pricingMetrics.unit}
+                      </span>
+                      <span className="text-[11px] text-stone-500 font-medium">
+                        Based on {pricingMetrics.basis}
+                      </span>
+                    </div>
                   ) : null}
                 </div>
               </div>
 
-              {/* Architectural Specifications Grid */}
+              {/* Architectural Adaptive Specifications Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-stone-700">
-                <div className="p-3.5 rounded-md bg-stone-50 border border-stone-200/70">
-                  <p className="text-xs text-stone-500 font-bold uppercase tracking-wider">Bedrooms</p>
-                  <p className="font-serif text-xl font-bold text-stone-900 mt-1">{property.bedrooms} BHK</p>
+                {specs.primaryMetrics.map((metric, i) => (
+                  <div key={i} className="p-3.5 rounded-md bg-stone-50 border border-stone-200/70">
+                    <p className="text-xs text-stone-500 font-bold uppercase tracking-wider">{metric.label}</p>
+                    <p className="font-serif text-xl font-bold text-stone-900 mt-1 capitalize">{metric.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ========================================================================= */}
+            {/* P2 AREA INTELLIGENCE: CARPET & BUILT-UP BREAKDOWN                         */}
+            {/* ========================================================================= */}
+            <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
+              <div className="border-b border-stone-100 pb-3 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                    Area Intelligence & Spatial Dimensions
+                  </span>
+                  <h2 className="font-serif text-xl font-bold text-stone-900">
+                    Certified Dimensional Breakdown
+                  </h2>
                 </div>
-                <div className="p-3.5 rounded-md bg-stone-50 border border-stone-200/70">
-                  <p className="text-xs text-stone-500 font-bold uppercase tracking-wider">Bathrooms</p>
-                  <p className="font-serif text-xl font-bold text-stone-900 mt-1">{property.bathrooms} Baths</p>
+                {spatialEfficiency && (
+                  <span className="bg-emerald-50 text-[#14532D] text-xs font-bold px-3 py-1 rounded-full border border-emerald-200" title="Carpet Area to Super Built-up Area Ratio">
+                    {spatialEfficiency}% Space Efficiency
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                {/* Carpet Area */}
+                <div className="p-4 rounded-md bg-emerald-50/50 border border-emerald-100 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#14532D]">Carpet Area</span>
+                    <span className="text-[10px] bg-[#14532D] text-white px-1.5 py-0.2 rounded-xs font-bold uppercase">RERA Primary</span>
+                  </div>
+                  <p className="font-serif text-2xl font-bold text-stone-900">
+                    {property.carpetArea ? `${property.carpetArea.toLocaleString('en-IN')} sq.ft` : 'Not Disclosed'}
+                  </p>
+                  <p className="text-[11px] text-stone-500 leading-tight">
+                    Actual usable net floor area enclosed within internal walls.
+                  </p>
                 </div>
-                <div className="p-3.5 rounded-md bg-stone-50 border border-stone-200/70">
-                  <p className="text-xs text-stone-500 font-bold uppercase tracking-wider">Floor Area</p>
-                  <p className="font-serif text-xl font-bold text-stone-900 mt-1">{property.area?.toLocaleString('en-IN')} sq.ft</p>
+
+                {/* Built-Up Area */}
+                <div className="p-4 rounded-md bg-stone-50 border border-stone-200/80 space-y-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-700">Built-Up Area</span>
+                  <p className="font-serif text-2xl font-bold text-stone-900">
+                    {property.builtUpArea ? `${property.builtUpArea.toLocaleString('en-IN')} sq.ft` : 'Not Disclosed'}
+                  </p>
+                  <p className="text-[11px] text-stone-500 leading-tight">
+                    Carpet area plus external perimeter walls and private balconies.
+                  </p>
                 </div>
-                <div className="p-3.5 rounded-md bg-stone-50 border border-stone-200/70">
-                  <p className="text-xs text-stone-500 font-bold uppercase tracking-wider">Typology</p>
-                  <p className="font-serif text-xl font-bold text-stone-900 mt-1 capitalize">{property.propertyType}</p>
+
+                {/* Super Built-Up / Total Area */}
+                <div className="p-4 rounded-md bg-stone-50 border border-stone-200/80 space-y-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-700">Super Built-Up Area</span>
+                  <p className="font-serif text-2xl font-bold text-stone-900">
+                    {(property.superBuiltUpArea || property.area)?.toLocaleString('en-IN')} sq.ft
+                  </p>
+                  <p className="text-[11px] text-stone-500 leading-tight">
+                    Total area including proportional common lobbies and elevator shafts.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ========================================================================= */}
+            {/* P2 ARCHITECTURAL SPECIFICATIONS TABLE                                     */}
+            {/* ========================================================================= */}
+            <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
+              <div className="border-b border-stone-100 pb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                  Property Attributes
+                </span>
+                <h2 className="font-serif text-xl font-bold text-stone-900">
+                  Architectural Specifications
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 pt-2 text-xs">
+                <div className="flex items-center justify-between py-2 border-b border-stone-100">
+                  <span className="text-stone-500 font-medium">Floor Position</span>
+                  <span className="font-bold text-stone-900">
+                    {property.floorNumber !== null && property.floorNumber !== undefined
+                      ? property.floorNumber === 0 
+                        ? 'Ground Floor' 
+                        : `Floor ${property.floorNumber}${property.totalFloors ? ` of ${property.totalFloors}` : ''}`
+                      : 'Independent / Unspecified'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-2 border-b border-stone-100">
+                  <span className="text-stone-500 font-medium">Furnishing Status</span>
+                  <span className="font-bold text-stone-900 capitalize">
+                    {property.furnishing ? property.furnishing.replace('-', ' ') : 'Unspecified'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-2 border-b border-stone-100">
+                  <span className="text-stone-500 font-medium">Orientation / Facing</span>
+                  <span className="font-bold text-stone-900 capitalize">
+                    {property.facing ? `${property.facing} Facing` : 'Unspecified'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-2 border-b border-stone-100">
+                  <span className="text-stone-500 font-medium">Parking Bays</span>
+                  <span className="font-bold text-stone-900">
+                    {property.parkingSpaces !== null && property.parkingSpaces !== undefined
+                      ? `${property.parkingSpaces} Dedicated Bays`
+                      : 'Common Parking'}
+                  </span>
+                </div>
+
+                {!specs.isCommercial && (
+                  <div className="flex items-center justify-between py-2 border-b border-stone-100">
+                    <span className="text-stone-500 font-medium">Balconies</span>
+                    <span className="font-bold text-stone-900">
+                      {property.balconies !== null && property.balconies !== undefined
+                        ? `${property.balconies} Private Balconies`
+                        : 'Unspecified'}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between py-2 border-b border-stone-100">
+                  <span className="text-stone-500 font-medium">Transaction Type</span>
+                  <span className="font-bold text-stone-900 uppercase">
+                    {property.purpose === 'sale' ? 'Outright Sale' : 'Monthly Lease'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -329,7 +562,7 @@ export const PropertyDetailsPage = () => {
               </p>
             </div>
 
-            {/* Authentic Amenities Grid (from MongoDB dataset) */}
+            {/* Authentic Amenities Grid */}
             <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
               <div className="border-b border-stone-100 pb-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
@@ -359,6 +592,50 @@ export const PropertyDetailsPage = () => {
                     <span>{feature}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* ========================================================================= */}
+            {/* P2 RERA & REGULATORY VERIFICATION CARD                                    */}
+            {/* ========================================================================= */}
+            <div className="bg-white p-6 sm:p-8 rounded-lg border border-stone-200 shadow-xs space-y-4">
+              <div className="border-b border-stone-100 pb-3 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#14532D] block">
+                    Regulatory Compliance
+                  </span>
+                  <h2 className="font-serif text-xl font-bold text-stone-900">
+                    RERA & Title Verification Details
+                  </h2>
+                </div>
+                <span className={`text-xs font-bold px-3 py-1 rounded-sm border uppercase tracking-wider ${verification.badgeClass}`}>
+                  {verification.label}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 text-xs">
+                <div className="p-3.5 bg-stone-50 rounded-md border border-stone-200/70">
+                  <p className="text-stone-500 font-bold uppercase tracking-wider text-[11px]">RERA Registration ID</p>
+                  <p className="font-mono text-sm font-bold text-stone-900 mt-1 break-all">
+                    {property.reraNumber || 'Not Disclosed / Exempt'}
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-stone-50 rounded-md border border-stone-200/70">
+                  <p className="text-stone-500 font-bold uppercase tracking-wider text-[11px]">Regulatory State Authority</p>
+                  <p className="text-sm font-bold text-stone-900 mt-1">
+                    {property.reraAuthority || 'State Real Estate Regulatory Authority'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-md bg-stone-50 border border-stone-200 text-xs text-stone-600 leading-relaxed">
+                <p className="flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#14532D] flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Verification Integrity Policy:</strong> HAVEN strictly distinguishes independent document audits from owner-supplied declarations. A property is labeled "RERA Verified" only when valid registration certificates have been verified against state regulatory portals.
+                  </span>
+                </p>
               </div>
             </div>
 
@@ -403,7 +680,7 @@ export const PropertyDetailsPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#14532D]" />
-                  <span>Verified listing authenticity</span>
+                  <span>Documented spatial measurements</span>
                 </div>
               </div>
 
@@ -459,12 +736,12 @@ export const PropertyDetailsPage = () => {
                 <X className="w-6 h-6" />
               </button>
               <img
-                src={property.image || DEFAULT_IMAGE}
-                alt={property.title}
+                src={currentDisplayImage}
+                alt={viewingFloorPlan ? `${property.title} Floor Plan` : property.title}
                 className="w-full max-h-[80vh] object-contain rounded-md"
               />
               <p className="text-white text-xs mt-3 font-semibold font-serif">
-                {property.title} • {property.city}
+                {property.title} • {property.city} {viewingFloorPlan ? '(Floor Plan Layout)' : ''}
               </p>
             </div>
           </div>

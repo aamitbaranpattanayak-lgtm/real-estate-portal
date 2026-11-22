@@ -35,7 +35,23 @@ const validatePropertyPayload = (body) => {
     bedrooms,
     bathrooms,
     area,
+    carpetArea,
+    builtUpArea,
+    superBuiltUpArea,
     image,
+    images,
+    floorPlan,
+    floorNumber,
+    totalFloors,
+    furnishing,
+    facing,
+    balconies,
+    parkingSpaces,
+    reraNumber,
+    reraAuthority,
+    verificationStatus,
+    verificationDate,
+    verificationNotes,
     ownerName,
     ownerEmail,
     ownerPhone,
@@ -55,6 +71,18 @@ const validatePropertyPayload = (body) => {
     "commercial",
   ];
   const validStatuses = ["available", "sold", "rented"];
+  const validFurnishing = ["unfurnished", "semi-furnished", "fully-furnished"];
+  const validFacing = [
+    "north",
+    "south",
+    "east",
+    "west",
+    "north-east",
+    "north-west",
+    "south-east",
+    "south-west",
+  ];
+  const validVerificationStatuses = ["unverified", "self_reported", "verified", "rejected"];
 
   if (!title || typeof title !== "string" || !title.trim()) {
     throw new Error("Property title is required");
@@ -105,7 +133,12 @@ const validatePropertyPayload = (body) => {
     address: address.trim(),
     city: city.trim(),
     state: state.trim(),
-    bedrooms: bedrooms !== undefined ? Math.max(0, Number(bedrooms)) : 1,
+    bedrooms:
+      bedrooms !== undefined
+        ? Math.max(0, Number(bedrooms))
+        : propertyType === "commercial"
+        ? 0
+        : 1,
     bathrooms: bathrooms !== undefined ? Math.max(0, Number(bathrooms)) : 1,
     area: Number(area),
     image: image.trim(),
@@ -115,6 +148,110 @@ const validatePropertyPayload = (body) => {
     featured: Boolean(featured),
     status: status && validStatuses.includes(status) ? status : "available",
   };
+
+  // P2 Area Intelligence
+  if (carpetArea !== undefined && carpetArea !== null && carpetArea !== "") {
+    const numCarpet = Number(carpetArea);
+    if (!Number.isFinite(numCarpet) || numCarpet < 0) {
+      throw new Error("Carpet area must be a valid non-negative number");
+    }
+    cleanPayload.carpetArea = numCarpet;
+  }
+
+  if (builtUpArea !== undefined && builtUpArea !== null && builtUpArea !== "") {
+    const numBuiltUp = Number(builtUpArea);
+    if (!Number.isFinite(numBuiltUp) || numBuiltUp < 0) {
+      throw new Error("Built-up area must be a valid non-negative number");
+    }
+    cleanPayload.builtUpArea = numBuiltUp;
+  }
+
+  if (superBuiltUpArea !== undefined && superBuiltUpArea !== null && superBuiltUpArea !== "") {
+    const numSuperBuiltUp = Number(superBuiltUpArea);
+    if (!Number.isFinite(numSuperBuiltUp) || numSuperBuiltUp < 0) {
+      throw new Error("Super built-up area must be a valid non-negative number");
+    }
+    cleanPayload.superBuiltUpArea = numSuperBuiltUp;
+  }
+
+  // P2 Multi-Image Gallery & Floor Plan
+  if (Array.isArray(images)) {
+    cleanPayload.images = images
+      .filter((img) => typeof img === "string" && img.trim())
+      .map((img) => img.trim());
+  } else if (typeof images === "string" && images.trim()) {
+    cleanPayload.images = images
+      .split(",")
+      .map((img) => img.trim())
+      .filter(Boolean);
+  }
+
+  if (floorPlan !== undefined && floorPlan !== null && typeof floorPlan === "string") {
+    cleanPayload.floorPlan = floorPlan.trim() || null;
+  }
+
+  // P2 Architectural Specifications
+  if (floorNumber !== undefined && floorNumber !== null && floorNumber !== "") {
+    const fn = Number(floorNumber);
+    if (!Number.isFinite(fn) || fn < -2) {
+      throw new Error("Floor number cannot be below basement levels (-2)");
+    }
+    cleanPayload.floorNumber = fn;
+  }
+
+  if (totalFloors !== undefined && totalFloors !== null && totalFloors !== "") {
+    const tf = Number(totalFloors);
+    if (!Number.isFinite(tf) || tf < 0) {
+      throw new Error("Total floors cannot be negative");
+    }
+    cleanPayload.totalFloors = tf;
+  }
+
+  if (furnishing && validFurnishing.includes(furnishing)) {
+    cleanPayload.furnishing = furnishing;
+  }
+
+  if (facing && validFacing.includes(facing.toLowerCase())) {
+    cleanPayload.facing = facing.toLowerCase();
+  }
+
+  if (balconies !== undefined && balconies !== null && balconies !== "") {
+    const balc = Number(balconies);
+    if (!Number.isFinite(balc) || balc < 0) {
+      throw new Error("Balconies cannot be negative");
+    }
+    cleanPayload.balconies = balc;
+  }
+
+  if (parkingSpaces !== undefined && parkingSpaces !== null && parkingSpaces !== "") {
+    const park = Number(parkingSpaces);
+    if (!Number.isFinite(park) || park < 0) {
+      throw new Error("Parking spaces cannot be negative");
+    }
+    cleanPayload.parkingSpaces = park;
+  }
+
+  // P2 RERA & Verification Workflow
+  if (reraNumber !== undefined && reraNumber !== null && typeof reraNumber === "string") {
+    cleanPayload.reraNumber = reraNumber.trim() || null;
+  }
+
+  if (reraAuthority !== undefined && reraAuthority !== null && typeof reraAuthority === "string") {
+    cleanPayload.reraAuthority = reraAuthority.trim() || null;
+  }
+
+  if (verificationStatus && validVerificationStatuses.includes(verificationStatus)) {
+    cleanPayload.verificationStatus = verificationStatus;
+    if (verificationStatus === "verified") {
+      cleanPayload.verificationDate = verificationDate ? new Date(verificationDate) : new Date();
+    } else {
+      cleanPayload.verificationDate = null;
+    }
+  }
+
+  if (verificationNotes !== undefined && verificationNotes !== null && typeof verificationNotes === "string") {
+    cleanPayload.verificationNotes = verificationNotes.trim() || null;
+  }
 
   if (Array.isArray(amenities)) {
     cleanPayload.amenities = amenities.filter((a) => typeof a === "string" && a.trim()).map((a) => a.trim());
@@ -152,6 +289,8 @@ const getProperties = asyncHandler(async (req, res) => {
     keyword,
     status,
     featured,
+    verificationStatus,
+    furnishing,
   } = req.query;
 
   const filter = {};
@@ -182,6 +321,14 @@ const getProperties = asyncHandler(async (req, res) => {
 
   if (featured === "true" || featured === true) {
     filter.featured = true;
+  }
+
+  if (typeof verificationStatus === "string" && verificationStatus.trim()) {
+    filter.verificationStatus = verificationStatus.trim();
+  }
+
+  if (typeof furnishing === "string" && furnishing.trim()) {
+    filter.furnishing = furnishing.trim();
   }
 
   // Price range bounding
