@@ -22,8 +22,12 @@ export const FavoriteProvider = ({ children }) => {
     try {
       const res = await favoriteService.getFavorites();
       if (res.success && Array.isArray(res.data)) {
-        setFavoritesList(res.data);
-        const ids = new Set(res.data.map((item) => (typeof item === 'string' ? item : item._id)));
+        // Defensive filter prevents fatal runtime crash if a deleted property returns null in populated array
+        const validItems = res.data.filter((item) => item && (typeof item === 'string' || item._id));
+        setFavoritesList(validItems);
+        const ids = new Set(
+          validItems.map((item) => (typeof item === 'string' ? item : item._id.toString()))
+        );
         setFavoriteIds(ids);
       }
     } catch (error) {

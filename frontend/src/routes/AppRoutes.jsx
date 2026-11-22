@@ -13,10 +13,10 @@ const AdminDashboard = lazy(() => import('../pages/Admin/AdminDashboard').then(m
 const NotFoundPage = lazy(() => import('../pages/NotFound/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 const LoadingFallback = () => (
-  <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+  <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center">
     <div className="flex flex-col items-center gap-3">
-      <div className="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Loading Haven...</p>
+      <div className="w-10 h-10 border-4 border-[#14532D] border-t-transparent rounded-full animate-spin" />
+      <p className="text-xs font-semibold text-stone-500 uppercase tracking-widest">Loading HAVEN...</p>
     </div>
   </div>
 );

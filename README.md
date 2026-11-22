@@ -92,21 +92,32 @@ Real Estate Portal/
 │
 ├── backend/
 │   ├── src/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── seeds/
-│   └── utils/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── seeds/
+│   │   ├── utils/
+│   │   ├── app.js
+│   │   └── server.js
+│   ├── tests/
+│   │   ├── api.test.js
+│   │   └── unit.test.js
+│   └── uploads/
 │
 ├── frontend/
 │   ├── src/
-│   ├── components/
-│   ├── context/
-│   ├── pages/
-│   ├── routes/
-│   ├── services/
-│   └── styles/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── pages/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── utils/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── index.html
 │
 └── README.md
 ```

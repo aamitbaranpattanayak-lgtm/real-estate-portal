@@ -47,32 +47,33 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center pt-28 pb-20 px-4">
+    <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center pt-28 pb-20 px-4">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white rounded-3xl border border-stone-200/80 shadow-md overflow-hidden p-8 sm:p-10"
+        className="max-w-md w-full bg-white rounded-lg border border-stone-200 shadow-md overflow-hidden p-8 sm:p-10"
       >
         {/* Header */}
         <div className="text-center space-y-2 mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-[#14532D] text-white flex items-center justify-center font-bold text-xs">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 3L21 21H17L12 11L7 21H3L12 3Z" fill="currentColor"/>
-              </svg>
+          <Link to="/" className="inline-flex items-center gap-2 mb-2 focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-md">
+            <div className="w-8 h-8 rounded-md bg-[#14532D] text-white flex items-center justify-center font-bold text-xs">
+              <span className="font-serif text-base">H</span>
             </div>
           </Link>
-          <h2 className="text-3xl font-bold text-stone-900 tracking-tight">
-            Let's find your place.
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#14532D] block">
+            Member Registration
+          </span>
+          <h2 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">
+            Create HAVEN Account
           </h2>
-          <p className="text-xs text-stone-500 font-medium">
-            Join HAVEN to save properties and connect directly with verified owners.
+          <p className="text-xs text-stone-600 font-medium">
+            Save curated properties and communicate directly with verified representatives.
           </p>
         </div>
 
         {/* Error Callout */}
         {apiError && (
-          <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2.5">
+          <div className="mb-6 p-4 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2.5">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{apiError}</span>
           </div>
@@ -83,92 +84,97 @@ export const RegisterPage = () => {
           
           {/* Full Name */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-stone-700 uppercase tracking-wider block">
+            <label htmlFor="register-name" className="text-xs font-semibold text-stone-700 uppercase tracking-wider block">
               Full Name
             </label>
             <div className="relative">
               <input
+                id="register-name"
                 type="text"
                 placeholder="Ramesh Kumar"
                 {...registerField('name')}
-                className={`w-full pl-10 pr-4 py-3 rounded-2xl border text-xs font-semibold text-stone-800 focus:outline-none transition-all ${
-                  errors.name ? 'border-rose-500 bg-rose-50/30' : 'border-stone-200 bg-stone-50/50 focus:border-[#14532D] focus:bg-white'
+                className={`w-full pl-10 pr-4 py-3 rounded-md border text-xs font-semibold text-stone-800 focus:outline-none transition-all ${
+                  errors.name ? 'border-rose-500 bg-rose-50/30' : 'border-stone-200 bg-stone-50/50 focus:border-[#14532D] focus:bg-white focus-visible:ring-2 focus-visible:ring-[#14532D]'
                 }`}
               />
               <User className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
             </div>
             {errors.name && (
-              <p className="text-xs text-rose-500 font-medium mt-1">{errors.name.message}</p>
+              <p className="text-xs text-rose-600 font-medium mt-1">{errors.name.message}</p>
             )}
           </div>
 
           {/* Email */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-stone-700 uppercase tracking-wider block">
+            <label htmlFor="register-email" className="text-xs font-semibold text-stone-700 uppercase tracking-wider block">
               Email Address
             </label>
             <div className="relative">
               <input
+                id="register-email"
                 type="email"
                 placeholder="ramesh@example.com"
                 {...registerField('email')}
-                className={`w-full pl-10 pr-4 py-3 rounded-2xl border text-xs font-semibold text-stone-800 focus:outline-none transition-all ${
-                  errors.email ? 'border-rose-500 bg-rose-50/30' : 'border-stone-200 bg-stone-50/50 focus:border-[#14532D] focus:bg-white'
+                className={`w-full pl-10 pr-4 py-3 rounded-md border text-xs font-semibold text-stone-800 focus:outline-none transition-all ${
+                  errors.email ? 'border-rose-500 bg-rose-50/30' : 'border-stone-200 bg-stone-50/50 focus:border-[#14532D] focus:bg-white focus-visible:ring-2 focus-visible:ring-[#14532D]'
                 }`}
               />
               <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
             </div>
             {errors.email && (
-              <p className="text-xs text-rose-500 font-medium mt-1">{errors.email.message}</p>
+              <p className="text-xs text-rose-600 font-medium mt-1">{errors.email.message}</p>
             )}
           </div>
 
           {/* Phone */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-stone-700 uppercase tracking-wider block">
+            <label htmlFor="register-phone" className="text-xs font-semibold text-stone-700 uppercase tracking-wider block">
               Phone Number
             </label>
             <div className="relative">
               <input
+                id="register-phone"
                 type="tel"
                 placeholder="9876543210"
                 {...registerField('phone')}
-                className={`w-full pl-10 pr-4 py-3 rounded-2xl border text-xs font-semibold text-stone-800 focus:outline-none transition-all ${
-                  errors.phone ? 'border-rose-500 bg-rose-50/30' : 'border-stone-200 bg-stone-50/50 focus:border-[#14532D] focus:bg-white'
+                className={`w-full pl-10 pr-4 py-3 rounded-md border text-xs font-semibold text-stone-800 focus:outline-none transition-all ${
+                  errors.phone ? 'border-rose-500 bg-rose-50/30' : 'border-stone-200 bg-stone-50/50 focus:border-[#14532D] focus:bg-white focus-visible:ring-2 focus-visible:ring-[#14532D]'
                 }`}
               />
               <Phone className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
             </div>
             {errors.phone && (
-              <p className="text-xs text-rose-500 font-medium mt-1">{errors.phone.message}</p>
+              <p className="text-xs text-rose-600 font-medium mt-1">{errors.phone.message}</p>
             )}
           </div>
 
           {/* Password */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-stone-700 uppercase tracking-wider block">
+            <label htmlFor="register-password" className="text-xs font-semibold text-stone-700 uppercase tracking-wider block">
               Password
             </label>
             <div className="relative">
               <input
+                id="register-password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 {...registerField('password')}
-                className={`w-full pl-10 pr-10 py-3 rounded-2xl border text-xs font-semibold text-stone-800 focus:outline-none transition-all ${
-                  errors.password ? 'border-rose-500 bg-rose-50/30' : 'border-stone-200 bg-stone-50/50 focus:border-[#14532D] focus:bg-white'
+                className={`w-full pl-10 pr-10 py-3 rounded-md border text-xs font-semibold text-stone-800 focus:outline-none transition-all ${
+                  errors.password ? 'border-rose-500 bg-rose-50/30' : 'border-stone-200 bg-stone-50/50 focus:border-[#14532D] focus:bg-white focus-visible:ring-2 focus-visible:ring-[#14532D]'
                 }`}
               />
               <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-3.5 text-stone-400 hover:text-stone-600"
+                className="absolute right-3.5 top-3.5 text-stone-400 hover:text-stone-600 focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-sm p-0.5"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-rose-500 font-medium mt-1">{errors.password.message}</p>
+              <p className="text-xs text-rose-600 font-medium mt-1">{errors.password.message}</p>
             )}
           </div>
 
@@ -176,7 +182,7 @@ export const RegisterPage = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3.5 rounded-2xl bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 mt-4"
+            className="w-full py-3.5 rounded-md bg-[#14532D] hover:bg-[#166534] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 mt-4 focus-visible:ring-2 focus-visible:ring-[#14532D] cursor-pointer"
           >
             {submitting ? (
               <span>Joining HAVEN...</span>
@@ -191,7 +197,7 @@ export const RegisterPage = () => {
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-stone-100 text-center text-xs text-stone-500 font-medium">
           Already have an account?{' '}
-          <Link to="/login" className="text-[#14532D] font-bold hover:underline">
+          <Link to="/login" className="text-[#14532D] font-bold hover:underline focus-visible:ring-2 focus-visible:ring-[#14532D] rounded-xs">
             Sign In Here
           </Link>
         </div>
