@@ -3,62 +3,61 @@ import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   return (
-    <footer className="bg-[#111827] text-gray-300 pt-20 pb-12 border-t border-gray-800 font-sans">
+    <footer className="bg-stone-950 text-stone-300 pt-20 pb-12 border-t border-stone-800">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
         {/* Main Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-16 border-b border-gray-800">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-16 border-b border-stone-800">
           
           {/* Brand Info */}
           <div className="md:col-span-2 space-y-4">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#14532D] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 3L21 21H17L12 11L7 21H3L12 3Z" fill="currentColor"/>
-                </svg>
+            <Link to="/" className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-md bg-[#14532D] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                <span className="font-serif text-base">H</span>
               </div>
-              <span className="text-2xl font-bold tracking-wider text-white">HAVEN</span>
+              <span className="font-serif text-2xl font-bold tracking-tight text-white">HAVEN</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 -ml-1 mt-2" />
             </Link>
 
-            <p className="text-gray-400 text-sm leading-relaxed max-w-sm font-normal">
-              Built for living, not just listing.
+            <p className="font-serif text-lg text-stone-200 leading-snug max-w-sm">
+              Architecture crafted for modern living.
             </p>
-            <p className="text-gray-500 text-xs leading-relaxed max-w-sm">
-              Discover thoughtfully selected homes and investment properties across India. Every listing verified. Every decision yours.
+            <p className="text-stone-400 text-xs leading-relaxed max-w-sm">
+              A curated collection of thoughtfully planned apartments, private villas, and urban penthouses across India's premier metropolitan centers. Direct owner representation with certified spatial metrics.
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-white text-xs font-bold uppercase tracking-widest">Find Your Place</h4>
-            <ul className="space-y-2.5 text-xs text-gray-400">
+            <h4 className="text-white text-xs font-bold uppercase tracking-[0.2em]">The Portfolio</h4>
+            <ul className="space-y-2.5 text-xs text-stone-400 font-medium">
               <li>
                 <Link to="/properties?purpose=sale" className="hover:text-emerald-400 transition-colors">
-                  Homes for Sale
+                  Residences for Purchase
                 </Link>
               </li>
               <li>
                 <Link to="/properties?purpose=rent" className="hover:text-emerald-400 transition-colors">
-                  Rental Apartments
+                  Leased & Rental Homes
                 </Link>
               </li>
               <li>
                 <Link to="/properties" className="hover:text-emerald-400 transition-colors">
-                  All Curated Homes
+                  Complete Catalog
                 </Link>
               </li>
               <li>
                 <Link to="/favorites" className="hover:text-emerald-400 transition-colors">
-                  Saved Properties
+                  Saved Portfolio
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Top Locations */}
+          {/* Top Enclaves */}
           <div className="space-y-3">
-            <h4 className="text-white text-xs font-bold uppercase tracking-widest">Featured Locations</h4>
-            <ul className="space-y-2.5 text-xs text-gray-400">
+            <h4 className="text-white text-xs font-bold uppercase tracking-[0.2em]">Enclaves</h4>
+            <ul className="space-y-2.5 text-xs text-stone-400 font-medium">
               <li>
                 <Link to="/properties?city=Bengaluru" className="hover:text-emerald-400 transition-colors">
                   Bengaluru
@@ -90,12 +89,12 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
           <p>© {new Date().getFullYear()} HAVEN. Built for living, not just listing.</p>
           <div className="flex items-center gap-6">
-            <span className="hover:text-gray-400 cursor-pointer transition-colors">Privacy</span>
-            <span className="hover:text-gray-400 cursor-pointer transition-colors">Terms</span>
-            <span className="hover:text-gray-400 cursor-pointer transition-colors">Contact</span>
+            <Link to="/properties" className="hover:text-stone-300 transition-colors">Catalog</Link>
+            <Link to="/favorites" className="hover:text-stone-300 transition-colors">Saved</Link>
+            <Link to="/login" className="hover:text-stone-300 transition-colors">Sign In</Link>
           </div>
         </div>
 
